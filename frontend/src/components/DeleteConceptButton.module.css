@@ -1,0 +1,67 @@
+.discardBtn {
+  display: inline-block;
+  background: transparent;
+  color: #b91c1c;
+  border: 1.5px solid #fca5a5;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+.discardBtn:hover {
+  background: #fee2e2;
+}
+
+.confirmRow {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #fca5a5;
+  background: #fef2f2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirmText {
+  font-size: 13px;
+  color: #7f1d1d;
+  font-weight: 500;
+  margin: 0;
+}
+
+.confirmBtns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cancelBtn {
+  background: #fff;
+  color: #4b5563;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.deleteBtn {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.deleteBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

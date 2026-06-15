@@ -1,0 +1,83 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px;
+  border: 1.5px solid var(--card-muted);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 180px;
+  border-radius: 6px;
+  display: block;
+}
+
+.fileText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+.clearBtn {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--card-muted);
+  background: var(--bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.uploadBtn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px dashed var(--green);
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.uploadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.urlInput {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--card-muted);
+  font-size: 12px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.error {
+  font-size: 12px;
+  color: #c33;
+}

@@ -1,0 +1,67 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F6F3ED;
+  --green: #257232;
+  --green-dark: #174D21;
+  --green-light: #E0F2E1;
+  --white: #FFFFFF;
+  --card-muted: #EBE6DD;
+  --progress-bg: #EBE6DD;
+  --text: #1A1714;
+  --text-secondary: #857D70;
+  --text-muted: #C2BAAD;
+  --orange: #D64A17;
+  --radius-card: 14px;
+  --radius-btn: 28px;
+  --radius-badge: 100px;
+  --font: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: transform 0.08s ease, opacity 0.12s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  transition: opacity 0.12s ease;
+}
+
+a:active {
+  opacity: 0.7;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  outline: none;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  button, a {
+    transition: none;
+  }
+  button:active:not(:disabled) {
+    transform: none;
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "seed:v4": "node src/db/seed-v4.js",
+    "migrate:v5": "node src/db/migrate-v5.js",
+    "migrate:v6": "node src/db/migrate-v6.js",
+    "migrate:v7": "node src/db/migrate-v7.js",
+    "migrate:v8": "node src/db/migrate-v8.js",
+    "migrate:v9": "node src/db/migrate-v9.js",
+    "migrate:v10": "node src/db/migrate-v10.js",
+    "migrate:v11": "node src/db/migrate-v11.js",
+    "migrate:v12": "node src/db/migrate-v12.js",
+    "migrate:v13": "node src/db/migrate-v13.js",
+    "migrate:v14": "node src/db/migrate-v14.js",
+    "migrate:v15": "node src/db/migrate-v15.js",
+    "migrate:v16": "node src/db/migrate-v16.js",
+    "migrate:v17": "node src/db/migrate-v17.js",
+    "migrate:v18": "node src/db/migrate-v18.js",
+    "migrate:v19": "node src/db/migrate-v19.js",
+    "migrate:v20": "node src/db/migrate-v20.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,146 @@
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--card-muted);
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  position: relative;
+}
+
+.card:hover {
+  border-color: var(--green);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.metaPill {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--card-muted);
+  color: var(--text-secondary);
+}
+
+.vibeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.vibeChip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+
+.statusBadge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+/* Modal bits */
+.gridTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ordered {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1.5px dashed var(--card-muted);
+  border-radius: 10px;
+}
+
+.orderedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.countOk {
+  color: var(--green-dark);
+  background: var(--green-light);
+}
+
+.countBad {
+  color: #c33;
+  background: #fdecec;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vTag {
+  flex-shrink: 0;
+  width: 32px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 4px 2px;
+}
+
+.error {
+  font-size: 13px;
+  color: #c33;
+  background: #fdecec;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}

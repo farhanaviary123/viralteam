@@ -1,0 +1,1325 @@
+/* ── Shared Creator layout ── */
+.page {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 0 20px 96px;
+  background: var(--bg);
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0 0;
+}
+
+.wordmark {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--green);
+}
+
+.logoutBtn {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: none;
+  padding: 4px 0;
+}
+
+.pageTitle {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 8px;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.newBtn {
+  width: 100%;
+  padding: 15px;
+  border-radius: var(--radius-btn);
+  background: var(--green);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 28px;
+}
+
+/* ── Section ── */
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Concept cards ── */
+.conceptCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 14px 14px 14px 0;
+  text-align: left;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.accent {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-left: 14px;
+}
+
+.accentOrange { background: var(--orange); }
+.accentGreen  { background: var(--green); }
+
+.conceptInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.conceptTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conceptMeta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.conceptRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.arrow {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.conceptCardDone {
+  background: var(--card-muted);
+  border-radius: 14px;
+  padding: 14px 16px;
+  opacity: 0.8;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 0;
+}
+
+.conceptTitleDone {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.conceptMetaDone {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.empty {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 48px;
+}
+
+/* ── Bottom nav ── */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0 24px;
+  background: var(--bg);
+  border-top: 1px solid var(--card-muted);
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.navItem {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  padding: 4px 16px;
+}
+
+.navActive {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ── Builder shared ── */
+.builderPage {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 0 20px 120px;
+  background: var(--bg);
+}
+
+.backBtn {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: none;
+  padding: 20px 0 0;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.progressTrack {
+  flex: 1;
+  height: 4px;
+  background: var(--progress-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.stepLabel {
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.builderHeading {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 20px;
+  line-height: 1.1;
+}
+
+.builderSub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+/* Selectable card */
+.selCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border-radius: 14px;
+  padding: 14px 14px 14px 0;
+  width: 100%;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.selCardActive {
+  background: var(--green-light);
+}
+
+.selAccent {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-left: 14px;
+  background: transparent;
+}
+
+.selAccentActive {
+  background: var(--green);
+}
+
+.selBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.selTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.selTitleActive {
+  color: var(--green-dark);
+}
+
+.selDesc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.selDescActive {
+  color: var(--green);
+}
+
+.checkCircle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 2px;
+  font-size: 11px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.checkCircleEmpty {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--card-muted);
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+
+/* Primary action btn (fixed bottom) */
+.primaryBtn {
+  position: fixed;
+  bottom: 28px;
+  left: 20px;
+  right: 20px;
+  max-width: 390px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: var(--radius-btn);
+  background: var(--green);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.35;
+}
+
+/* Copy step extras */
+.counterPill {
+  display: inline-block;
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;
+  margin-bottom: 12px;
+}
+
+.helperText {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.varNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ── Format grid (2-col visual) ── */
+.formatGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.formatCard {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.formatCardActive {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+.formatThumb {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: var(--card-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  position: relative;
+  overflow: hidden;
+}
+
+.formatThumb iframe,
+.formatThumb video,
+.formatThumb img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+.formatBody {
+  padding: 10px 12px 12px;
+}
+
+.formatName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.formatDesc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.typeBadge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--green-light);
+  color: var(--green-dark);
+  padding: 3px 7px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+
+/* ── Concept detail pages ── */
+.detailPage {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 0 20px 120px;
+  background: var(--bg);
+}
+
+.backLink {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: none;
+  padding: 20px 0 12px;
+}
+
+.conceptDetailTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 8px;
+  line-height: 1.1;
+}
+
+.conceptDetailMeta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--card-muted);
+  margin: 16px 0;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+/* Copy reminder card */
+.copyReminderCard {
+  background: var(--green-light);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.copyReminderAccent {
+  width: 3px;
+  border-radius: 3px;
+  background: var(--green);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.copyReminderLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+}
+
+.copyReminderText {
+  font-size: 13px;
+  color: var(--green-dark);
+}
+
+/* Shot list item */
+.shotItem {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 14px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.shotNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.shotText {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.shotCheck {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.shotCheckOff {
+  background: var(--card-muted);
+}
+
+.shotCheckOn {
+  background: var(--green);
+  color: #fff;
+}
+
+.hookReminder {
+  background: var(--card-muted);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.helperSmall {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* ── Shoot phase v4 ── */
+.videoEmbed {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 480px;
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.videoEmbed iframe,
+.videoEmbed video,
+.videoEmbed img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  object-fit: cover;
+}
+
+.videoEmbedEmpty {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 320px;
+  background: var(--card-muted);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.angleCard {
+  background: var(--green-light);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.angleCardAccent {
+  width: 3px;
+  border-radius: 3px;
+  background: var(--green);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.angleCardLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+}
+
+.angleCardName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+}
+
+.angleCardDesc {
+  font-size: 12px;
+  color: var(--green-dark);
+  line-height: 1.4;
+}
+
+.frameworkCard {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+
+.frameworkLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.frameworkText {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.shotItemV4 {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+/* Vertical shot card grid (v6) */
+.shotGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.shotCard {
+  background: var(--white);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.shotCardTicked {
+  background: var(--green-light);
+  border-color: var(--green);
+}
+
+.shotCardThumb {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: var(--card-muted);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+
+.shotCardThumb img,
+.shotCardThumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.shotCardNumBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.shotCardBody {
+  padding: 10px 12px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shotCardName {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 0;
+}
+
+.shotItemV4Body {
+  flex: 1;
+  min-width: 0;
+}
+
+.shotItemV4Name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.shotThumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--card-muted);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shotThumb img,
+.shotThumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.shotThumbEmpty {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: var(--card-muted);
+  flex-shrink: 0;
+}
+
+.seeRefLink {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  margin-top: 3px;
+  background: none;
+  padding: 0;
+}
+
+.seeRefLink:hover {
+  text-decoration: underline;
+}
+
+.inspirationBtn {
+  width: 100%;
+  background: var(--white);
+  border: 1px dashed var(--green);
+  color: var(--green-dark);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.noteCard {
+  background: var(--card-muted);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.twoBtnRow {
+  position: fixed;
+  bottom: 28px;
+  left: 20px;
+  right: 20px;
+  max-width: 390px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+}
+
+.shootAnotherBtn {
+  flex: 1;
+  padding: 16px;
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--card-muted);
+}
+
+.goToEditBtn {
+  flex: 1;
+  padding: 16px;
+  border-radius: var(--radius-btn);
+  background: var(--green);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shootAnotherBtn:disabled,
+.goToEditBtn:disabled {
+  opacity: 0.4;
+}
+
+/* ── Footage link screen ── */
+.shotPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+
+.footageInput {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  border: 1px solid var(--card-muted);
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 16px;
+}
+
+.footageInput:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.footageHelper {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.skipLink {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: none;
+  padding: 12px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.skipLink:hover {
+  color: var(--text);
+}
+
+/* ── Edit phase v4 ── */
+.footageLinkRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--green-dark);
+  font-weight: 600;
+  background: var(--green-light);
+  padding: 8px 12px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+  text-decoration: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addFootageLink {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: none;
+  padding: 0;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.addFootageLink:hover { color: var(--green-dark); }
+
+.editIntro {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.vCard {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--card-muted);
+  transition: opacity 0.2s;
+}
+
+.vCardDone {
+  opacity: 0.55;
+  background: var(--card-muted);
+}
+
+.vCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.vCardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.vSection {
+  border-top: 1px solid var(--card-muted);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.vSection:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.vSectionLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.vCopyText {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.vSmallBtn {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green-dark);
+  background: var(--green-light);
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 0;
+  cursor: pointer;
+}
+
+.vSmallBtn:hover {
+  background: var(--green);
+  color: #fff;
+}
+
+.vRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vRowText {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.vHookText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.vClipList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vClipRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vClipNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: var(--green-light);
+  border-radius: 100px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.vClipName {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.vDoneToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--card-muted);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: 0;
+}
+
+.vDoneToggleOn {
+  background: var(--green);
+  color: #fff;
+}
+
+/* Edit phase variation cards */
+.variationCard {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.variationCardDone {
+  opacity: 0.6;
+}
+
+.varBadge {
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.variationBody {
+  flex: 1;
+}
+
+.variationCopy {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.variationHook {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.editAllDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* ── v5 creator additions ── */
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--card-muted), #e5e7eb);
+}
+
+.shotTick {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--card-muted);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.shotTickOn {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.shotItemTicked {
+  background: var(--green-light);
+}
+
+.shotNameDimmed {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* ── v6: View more references button ── */
+.viewMoreRefsBtn {
+  display: inline-block;
+  margin-top: 8px;
+  background: var(--white);
+  color: var(--text-primary);
+  border: 1.5px solid var(--card-muted);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.viewMoreRefsBtn:hover { border-color: var(--text-primary); }
+
+/* ── v6: Format library page ── */
+.filterRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.filterRow select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--card-muted);
+  border-radius: 999px;
+  background: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+}
+.libraryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.libraryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.libraryThumb {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--card-muted);
+}
+.libraryThumb img,
+.libraryThumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.libraryMainBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.libraryTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.libraryTags span {
+  background: var(--card-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

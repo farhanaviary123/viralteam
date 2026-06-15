@@ -1,0 +1,326 @@
+.wide {
+  width: min(960px, 92vw) !important;
+  max-width: 960px !important;
+}
+
+.section {
+  border-top: 1px solid var(--card-muted);
+  padding-top: 18px;
+  margin-bottom: 20px;
+}
+
+.section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.sectionHint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.gridTwo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Thumbs */
+.thumb {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb img,
+.thumb iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+}
+
+.thumbFallback {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* Clip grid (section 2) */
+.clipGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.clipCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid var(--card-muted);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.clipCard:hover {
+  border-color: var(--green);
+}
+
+.clipCardActive {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+.clipName {
+  font-size: 12px;
+  color: var(--text);
+  text-align: center;
+  word-break: break-word;
+}
+
+.tick {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Variations (section 3) */
+.addVarBtn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--green);
+  background: var(--green-light);
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.addVarBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.variation {
+  border: 1.5px solid var(--card-muted);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--bg);
+}
+
+.variationHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.variationLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.variationName {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--card-muted);
+  background: var(--bg);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.variationWeight {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1.5px solid var(--card-muted);
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.removeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--card-muted);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.removeBtn:hover {
+  color: #c33;
+  border-color: #c33;
+}
+
+.sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--card-muted);
+  min-height: 80px;
+  align-items: center;
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.seqItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1.5px solid transparent;
+  cursor: grab;
+  position: relative;
+  min-width: 64px;
+}
+
+.seqItem:active {
+  cursor: grabbing;
+}
+
+.seqIndex {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.seqName {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 64px;
+  word-break: break-word;
+}
+
+.seqRemove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--card-muted);
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.pool {
+  margin-top: 10px;
+}
+
+.poolHint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.poolGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.poolItem {
+  padding: 2px;
+  border-radius: 6px;
+  border: 1.5px solid var(--card-muted);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.poolItem:hover {
+  border-color: var(--green);
+}
+
+/* ── Section 4: Example library ── */
+.exampleLibrary { display: flex; flex-direction: column; gap: 16px; }
+.exampleAddCard { padding: 12px; border: 1.5px dashed var(--card-muted); border-radius: 10px; background: var(--bg); display: flex; flex-direction: column; gap: 10px; }
+.exampleAddLabel { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+.exampleTagRow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.exampleTagRow select { padding: 6px 8px; border: 1.5px solid var(--card-muted); border-radius: 6px; background: #fff; font-size: 13px; }
+.exampleMainCheck { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--text-secondary); }
+.addExampleBtn { align-self: flex-start; padding: 8px 14px; border-radius: 8px; border: none; background: var(--green); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+.addExampleBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.exampleList { display: flex; flex-direction: column; gap: 8px; }
+.exampleRow { display: grid; grid-template-columns: 80px 1fr auto; gap: 12px; align-items: center; padding: 10px; background: var(--card-bg, #fff); border: 1.5px solid var(--card-muted); border-radius: 10px; }
+.exampleRowMain { border-color: var(--green); background: var(--green-light, #f0fdf4); }
+.exampleThumb { width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: var(--card-muted); display: flex; align-items: center; justify-content: center; }
+.exampleThumb img, .exampleThumb video { width: 100%; height: 100%; object-fit: cover; }
+.exampleMeta { display: flex; gap: 6px; flex-wrap: wrap; }
+.exampleMeta select { padding: 4px 6px; border: 1px solid var(--card-muted); border-radius: 5px; font-size: 12px; background: #fff; }
+.exampleActions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.exampleMainPill { background: var(--green); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.exampleSetMainBtn { background: transparent; color: var(--green); border: 1.5px solid var(--green); padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.exampleDelBtn { background: transparent; color: #dc2626; border: none; font-size: 11px; cursor: pointer; padding: 2px 6px; }
