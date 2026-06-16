@@ -162,13 +162,13 @@ export default function Guide() {
           <div className={styles.pathGrid}>
             <button className={styles.pathCard} disabled={creating} onClick={() => pickPath('from_video')}>
               <span className={styles.pathIcon}>👁️</span>
-              <p className={styles.pathName}>Start from a viral video</p>
-              <p className={styles.pathDesc}>I saw a TikTok or Instagram video and I want to make something like it.</p>
+              <p className={styles.pathName}>I am feeling creative</p>
+              <p className={styles.pathDesc}>→ Start from a viral video</p>
             </button>
             <button className={styles.pathCard} disabled={creating} onClick={() => pickPath('from_text')}>
               <span className={styles.pathIcon}>📄</span>
-              <p className={styles.pathName}>Start from a proven text</p>
-              <p className={styles.pathDesc}>I want to start from a text that we give you and build a video around it.</p>
+              <p className={styles.pathName}>Give me direction</p>
+              <p className={styles.pathDesc}>→ Start from a proven text</p>
             </button>
           </div>
         </>
