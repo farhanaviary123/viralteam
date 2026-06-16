@@ -109,6 +109,7 @@ export const api = {
   getConcept: (id) => req('GET', `/concepts/${id}`),
   createConcept: (body) => req('POST', '/concepts', body),
   advanceConceptStatus: (id) => req('PATCH', `/concepts/${id}/status`),
+  setConceptStatus: (id, status) => req('PATCH', `/concepts/${id}/status`, { status }),
   setFootageLink: (id, footage_link) => req('PATCH', `/concepts/${id}/footage-link`, { footage_link }),
   deleteConcept: (id) => req('DELETE', `/concepts/${id}`),
 
@@ -144,6 +145,10 @@ export const api = {
   // Users (strategist)
   getCreators: () => req('GET', '/users/creators'),
   updateCreator: (id, body) => req('PATCH', `/users/creators/${id}`, body),
+
+  // Guide content (v21 — backend-driven creator Guide wizard copy/links)
+  getGuideContent: () => req('GET', '/guide-content'),
+  updateGuideContent: (body) => req('PATCH', '/guide-content', body),
 
   // Stats
   getStats: () => req('GET', '/stats'),

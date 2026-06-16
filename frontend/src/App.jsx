@@ -5,16 +5,13 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 import CreatorHome from './pages/creator/Home';
-import Step1Format from './pages/creator/builder/Step1Format';
-import ShootPhase from './pages/creator/concept/ShootPhase';
-import HookInspiration from './pages/creator/concept/HookInspiration';
-import FormatLibrary from './pages/creator/concept/FormatLibrary';
-import EditPhase from './pages/creator/concept/EditPhase';
+import Guide from './pages/creator/Guide';
 
 import StrategistOverview from './pages/strategist/Overview';
 import CreativeStrategy from './pages/strategist/CreativeStrategy';
 import Creators from './pages/strategist/Creators';
 import Performance from './pages/strategist/Performance';
+import GuideContentEditor from './pages/strategist/GuideContentEditor';
 
 function Guard({ role, children }) {
   const { user, loading } = useAuth();
@@ -39,19 +36,16 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Creator */}
+        {/* Creator — v21: 3-step Guide wizard replaces the old builder/shoot/edit flow */}
         <Route path="/creator" element={<Guard role="creator"><CreatorHome /></Guard>} />
-        <Route path="/creator/new" element={<Guard role="creator"><Step1Format /></Guard>} />
-        <Route path="/creator/concept/:id/shoot" element={<Guard role="creator"><ShootPhase /></Guard>} />
-        <Route path="/creator/concept/:id/hooks" element={<Guard role="creator"><HookInspiration /></Guard>} />
-        <Route path="/creator/concept/:id/library" element={<Guard role="creator"><FormatLibrary /></Guard>} />
-        <Route path="/creator/concept/:id/edit" element={<Guard role="creator"><EditPhase /></Guard>} />
+        <Route path="/creator/new" element={<Guard role="creator"><Guide /></Guard>} />
 
         {/* Strategist */}
         <Route path="/strategist" element={<Guard role="strategist"><StrategistOverview /></Guard>} />
         <Route path="/strategist/strategy" element={<Guard role="strategist"><CreativeStrategy /></Guard>} />
         <Route path="/strategist/creators" element={<Guard role="strategist"><Creators /></Guard>} />
         <Route path="/strategist/performance" element={<Guard role="strategist"><Performance /></Guard>} />
+        <Route path="/strategist/guide" element={<Guard role="strategist"><GuideContentEditor /></Guard>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

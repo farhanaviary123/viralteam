@@ -23,6 +23,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/performance', require('./routes/performance'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/products', require('./routes/products'));
+app.use('/api/guide-content', require('./routes/guideContent'));
 
 app.use((err, req, res, next) => {
   console.error(err);

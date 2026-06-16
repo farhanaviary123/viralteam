@@ -31,8 +31,8 @@ async function fetchConcept(id) {
       f.thumbnail_url AS format_thumbnail_url,
       f.required_copy_type
     FROM concept_projects cp
-    JOIN angles a ON a.id = cp.angle_id
-    JOIN formats f ON f.id = cp.format_id
+    LEFT JOIN angles a ON a.id = cp.angle_id
+    LEFT JOIN formats f ON f.id = cp.format_id
     WHERE cp.id = $1
   `, [id]);
   if (!head.rows.length) return null;
@@ -213,18 +213,18 @@ router.get('/', async (req, res) => {
       SELECT cp.*, a.name AS angle_name, f.name AS format_name, u.name AS creator_name,
         ROW_NUMBER() OVER (PARTITION BY cp.creator_id ORDER BY cp.created_at ASC) AS sequential_number
       FROM concept_projects cp
-      JOIN angles a ON a.id = cp.angle_id
-      JOIN formats f ON f.id = cp.format_id
+      LEFT JOIN angles a ON a.id = cp.angle_id
+      LEFT JOIN formats f ON f.id = cp.format_id
       JOIN users u ON u.id = cp.creator_id
       ORDER BY cp.created_at DESC`;
     params = [];
   } else {
     query = `
-      SELECT cp.*, a.name AS angle_name, f.name AS format_name, f.format_type,
+      SELECT cp.*, a.name AS angle_name, f.name AS format_name,
         ROW_NUMBER() OVER (PARTITION BY cp.creator_id ORDER BY cp.created_at ASC) AS sequential_number
       FROM concept_projects cp
-      JOIN angles a ON a.id = cp.angle_id
-      JOIN formats f ON f.id = cp.format_id
+      LEFT JOIN angles a ON a.id = cp.angle_id
+      LEFT JOIN formats f ON f.id = cp.format_id
       WHERE cp.creator_id = $1
       ORDER BY cp.created_at DESC`;
     params = [req.user.id];
@@ -243,10 +243,39 @@ router.get('/:id', async (req, res) => {
   res.json(concept);
 });
 
-// CREATE — creator picks format only; engine assigns the rest
+// CREATE
+//
+// Two shapes:
+//   1. Guide wizard (v21): body { creative_path } → minimal concept with no
+//      angle/format. Status starts at 'pending_upload'. This is the live
+//      creator flow.
+//   2. Legacy rich builder: body { format_id, ... } → engine assigns
+//      angle/clips/copy/songs. Kept for back-compat.
 router.post('/', requireRole('creator'), async (req, res) => {
-  const { format_id, product_id = null, variation_count } = req.body;
-  if (!format_id) return res.status(400).json({ error: 'format_id required' });
+  const { format_id, product_id = null, variation_count, creative_path } = req.body;
+
+  // --- Guide wizard: minimal concept ---------------------------------------
+  if (!format_id) {
+    if (creative_path && !['from_video', 'from_text'].includes(creative_path)) {
+      return res.status(400).json({ error: 'invalid creative_path' });
+    }
+    // Per-creator sequential number for the title, computed before insert.
+    const seq = await db.query(
+      'SELECT COUNT(*)::int AS n FROM concept_projects WHERE creator_id = $1',
+      [req.user.id]
+    );
+    const nextNum = (seq.rows[0]?.n || 0) + 1;
+    const title = `Concept ${nextNum}`;
+    const concept = (await db.query(
+      `INSERT INTO concept_projects (title, creator_id, status, creative_path)
+       VALUES ($1, $2, 'pending_upload', $3) RETURNING *`,
+      [title, req.user.id, creative_path || null]
+    )).rows[0];
+    // Minimal concepts have no angle/format/clips/songs — the wizard only needs
+    // the id + status back, so return the inserted row directly (avoids the
+    // format-dependent fetchConcept query).
+    return res.status(201).json({ ...concept, sequential_number: nextNum });
+  }
 
   const vCount = Math.max(1, Math.min(5, Number(variation_count) || 5));
 
@@ -383,6 +412,18 @@ router.patch('/:id/status', async (req, res) => {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
+  // v21 Guide flow: explicit target status (e.g. mark a pending_upload concept
+  // 'complete' when the creator confirms they've uploaded to Playbook).
+  const VALID_TARGETS = ['pending_upload', 'complete'];
+  if (req.body && VALID_TARGETS.includes(req.body.status)) {
+    await db.query(
+      'UPDATE concept_projects SET status=$1, updated_at=now() WHERE id=$2',
+      [req.body.status, req.params.id]
+    );
+    return res.json({ status: req.body.status });
+  }
+
+  // Legacy linear advance: needs_shooting → ready_to_edit → done.
   const idx = STATUS_ORDER.indexOf(c.status);
   if (idx === STATUS_ORDER.length - 1) return res.status(400).json({ error: 'Already done' });
   const next = STATUS_ORDER[idx + 1];

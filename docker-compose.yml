@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scalemax-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: scalemax_user
+      POSTGRES_PASSWORD: STRONG_PASSWORD
+      POSTGRES_DB: scalemax
+    ports:
+      - "5433:5432"
+    volumes:
+      - scalemax-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scalemax_user -d scalemax"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  scalemax-db-data:

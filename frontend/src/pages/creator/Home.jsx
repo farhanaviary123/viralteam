@@ -15,13 +15,23 @@ export default function CreatorHome() {
     api.getConcepts().then(setConcepts).finally(() => setLoading(false));
   }, []);
 
-  const inProgress = concepts.filter(c => c.status !== 'done');
-  const done = concepts.filter(c => c.status === 'done');
+  // v21 Guide flow: concepts are static records — 'complete' (uploaded to
+  // Playbook) vs everything else still awaiting upload. Legacy statuses
+  // (needs_shooting/ready_to_edit) count as in-progress too.
+  const inProgress = concepts.filter(c => c.status !== 'done' && c.status !== 'complete');
+  const done = concepts.filter(c => c.status === 'done' || c.status === 'complete');
 
-  function openConcept(c) {
-    if (c.status === 'needs_shooting') navigate(`/creator/concept/${c.id}/shoot`);
-    else if (c.status === 'ready_to_edit') navigate(`/creator/concept/${c.id}/edit`);
-    else navigate(`/creator/concept/${c.id}/edit`);
+  // Guide concepts carry no angle; their title is already "Concept N".
+  // Legacy concepts use "Concept N: <angle>".
+  function conceptTitle(c) {
+    if (c.angle_name) return `Concept ${c.sequential_number}: ${c.angle_name}`;
+    return c.title || `Concept ${c.sequential_number}`;
+  }
+  function conceptMeta(c) {
+    if (c.format_name) return c.format_name;
+    if (c.creative_path === 'from_video') return 'From a viral video';
+    if (c.creative_path === 'from_text') return 'From a text';
+    return '';
   }
 
   return (
@@ -46,17 +56,16 @@ export default function CreatorHome() {
               <p className={styles.sectionLabel}>In Progress</p>
               <div className={styles.list}>
                 {inProgress.map(c => (
-                  <button key={c.id} className={styles.conceptCard} onClick={() => openConcept(c)}>
-                    <div className={`${styles.accent} ${c.status === 'needs_shooting' ? styles.accentOrange : styles.accentGreen}`} />
+                  <div key={c.id} className={styles.conceptCard}>
+                    <div className={`${styles.accent} ${styles.accentOrange}`} />
                     <div className={styles.conceptInfo}>
-                      <p className={styles.conceptTitle}>Concept {c.sequential_number}: {c.angle_name}</p>
-                      <p className={styles.conceptMeta}>{c.format_name}</p>
+                      <p className={styles.conceptTitle}>{conceptTitle(c)}</p>
+                      <p className={styles.conceptMeta}>{conceptMeta(c)}</p>
                     </div>
                     <div className={styles.conceptRight}>
                       <Badge status={c.status} />
-                      <span className={styles.arrow}>→</span>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </section>
@@ -67,10 +76,10 @@ export default function CreatorHome() {
               <p className={styles.sectionLabel}>Done</p>
               <div className={styles.list}>
                 {done.map(c => (
-                  <button key={c.id} className={styles.conceptCardDone} onClick={() => openConcept(c)}>
-                    <p className={styles.conceptTitleDone}>Concept {c.sequential_number}: {c.angle_name}</p>
-                    <p className={styles.conceptMetaDone}>{c.format_name}</p>
-                  </button>
+                  <div key={c.id} className={styles.conceptCardDone}>
+                    <p className={styles.conceptTitleDone}>{conceptTitle(c)}</p>
+                    <p className={styles.conceptMetaDone}>{conceptMeta(c)}</p>
+                  </div>
                 ))}
               </div>
             </section>
