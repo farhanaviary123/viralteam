@@ -56,7 +56,7 @@ export default function CreatorHome() {
               <p className={styles.sectionLabel}>In Progress</p>
               <div className={styles.list}>
                 {inProgress.map(c => (
-                  <div key={c.id} className={styles.conceptCard}>
+                  <button key={c.id} className={styles.conceptCard} onClick={() => navigate(`/creator/concept/${c.id}`)}>
                     <div className={`${styles.accent} ${styles.accentOrange}`} />
                     <div className={styles.conceptInfo}>
                       <p className={styles.conceptTitle}>{conceptTitle(c)}</p>
@@ -64,8 +64,9 @@ export default function CreatorHome() {
                     </div>
                     <div className={styles.conceptRight}>
                       <Badge status={c.status} />
+                      <span className={styles.arrow}>→</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </section>
@@ -76,10 +77,10 @@ export default function CreatorHome() {
               <p className={styles.sectionLabel}>Done</p>
               <div className={styles.list}>
                 {done.map(c => (
-                  <div key={c.id} className={styles.conceptCardDone}>
+                  <button key={c.id} className={styles.conceptCardDone} onClick={() => navigate(`/creator/concept/${c.id}`)}>
                     <p className={styles.conceptTitleDone}>{conceptTitle(c)}</p>
                     <p className={styles.conceptMetaDone}>{conceptMeta(c)}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             </section>

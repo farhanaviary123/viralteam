@@ -235,11 +235,25 @@ router.get('/', async (req, res) => {
 
 // GET ONE
 router.get('/:id', async (req, res) => {
-  const concept = await fetchConcept(req.params.id);
-  if (!concept) return res.status(404).json({ error: 'Not found' });
-  if (req.user.role === 'creator' && concept.creator_id !== req.user.id) {
+  // Minimal Guide concepts (no format) don't go through the format-dependent
+  // fetchConcept query — return the row + a per-creator sequential number.
+  const base = await db.query('SELECT * FROM concept_projects WHERE id = $1', [req.params.id]);
+  if (!base.rows.length) return res.status(404).json({ error: 'Not found' });
+  const row = base.rows[0];
+  if (req.user.role === 'creator' && row.creator_id !== req.user.id) {
     return res.status(403).json({ error: 'Forbidden' });
   }
+
+  if (!row.format_id) {
+    const seq = await db.query(
+      'SELECT COUNT(*)::int AS n FROM concept_projects WHERE creator_id = $1 AND created_at <= $2',
+      [row.creator_id, row.created_at]
+    );
+    return res.json({ ...row, sequential_number: seq.rows[0]?.n || 1, variations: [] });
+  }
+
+  const concept = await fetchConcept(req.params.id);
+  if (!concept) return res.status(404).json({ error: 'Not found' });
   res.json(concept);
 });
 

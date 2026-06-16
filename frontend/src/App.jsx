@@ -39,6 +39,7 @@ export default function App() {
         {/* Creator — v21: 3-step Guide wizard replaces the old builder/shoot/edit flow */}
         <Route path="/creator" element={<Guard role="creator"><CreatorHome /></Guard>} />
         <Route path="/creator/new" element={<Guard role="creator"><Guide /></Guard>} />
+        <Route path="/creator/concept/:id" element={<Guard role="creator"><Guide /></Guard>} />
 
         {/* Strategist */}
         <Route path="/strategist" element={<Guard role="strategist"><StrategistOverview /></Guard>} />

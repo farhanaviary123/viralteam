@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Guide.module.css';
@@ -70,18 +70,30 @@ function CopyChip({ text }) {
 
 export default function Guide() {
   const navigate = useNavigate();
+  const { id } = useParams(); // present → "review" mode: reopen an existing concept
+  const review = !!id;
   const { user } = useAuth();
   const [content, setContent] = useState(null);
-  const [step, setStep] = useState('landing'); // 'landing' | 1 | 2 | 3
+  // Review mode skips Step 1 (path already chosen) and opens on Step 2.
+  const [step, setStep] = useState(review ? 2 : 1); // 1 | 2 | 3
   const [path, setPath] = useState(null); // 'from_video' | 'from_text'
-  const [conceptId, setConceptId] = useState(null);
+  const [conceptId, setConceptId] = useState(id || null);
   const [creating, setCreating] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [loadErr, setLoadErr] = useState(null);
 
   useEffect(() => {
     api.getGuideContent().then(setContent).catch(() => setContent({}));
   }, []);
+
+  // Review mode: load the concept to recover which creative path it used.
+  useEffect(() => {
+    if (!id) return;
+    api.getConcept(id)
+      .then(c => setPath(c.creative_path || 'from_video'))
+      .catch(err => setLoadErr(err.message));
+  }, [id]);
 
   // Picking a path creates the concept (once) and moves to step 2.
   async function pickPath(p) {
@@ -118,27 +130,17 @@ export default function Guide() {
     navigate('/creator');
   }
 
+  if (loadErr) return <div className={styles.page}><p style={{ padding: 24 }}>{loadErr}</p></div>;
   if (!content) return null;
+  // Review mode: wait until we know which path the concept used.
+  if (review && !path) return null;
 
   const c = content;
-  const stepLabel = step !== 'landing' ? `Step ${step} of 3` : null;
-
-  // ---- landing ----
-  if (step === 'landing') {
-    return (
-      <div className={styles.page}>
-        <div className={styles.landing}>
-          <h1 className={styles.landingTitle}>Ready to make your next video?</h1>
-          <button className={styles.cta} onClick={() => setStep(1)}>
-            Build a concept →
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const stepLabel = `Step ${step} of 3`;
 
   function backFromStep() {
-    if (step === 1) setStep('landing');
+    // In review mode there's no Step 1 — Step 2 Back returns home.
+    if (step === 1 || (review && step === 2)) navigate('/creator');
     else if (step === 2) setStep(1);
     else if (step === 3) setStep(2);
   }
@@ -160,12 +162,12 @@ export default function Guide() {
           <div className={styles.pathGrid}>
             <button className={styles.pathCard} disabled={creating} onClick={() => pickPath('from_video')}>
               <span className={styles.pathIcon}>👁️</span>
-              <p className={styles.pathName}>I am feeling creative</p>
+              <p className={styles.pathName}>Start from a viral video</p>
               <p className={styles.pathDesc}>I saw a TikTok or Instagram video and I want to make something like it.</p>
             </button>
             <button className={styles.pathCard} disabled={creating} onClick={() => pickPath('from_text')}>
               <span className={styles.pathIcon}>📄</span>
-              <p className={styles.pathName}>Give me direction</p>
+              <p className={styles.pathName}>Start from a proven text</p>
               <p className={styles.pathDesc}>I want to start from a text that we give you and build a video around it.</p>
             </button>
           </div>
