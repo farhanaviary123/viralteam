@@ -81,6 +81,7 @@ export default function Guide() {
   const [creating, setCreating] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [allDone, setAllDone] = useState(false);
   const [loadErr, setLoadErr] = useState(null);
 
   useEffect(() => {
@@ -112,22 +113,26 @@ export default function Guide() {
     }
   }
 
-  // Finish → "I've already uploaded": mark complete and go home.
-  async function confirmUploaded() {
+  // Both Finish actions mark the concept complete, then show "All done!" and
+  // redirect home. "Open Playbook" additionally opens the Playbook link.
+  async function completeConcept() {
     if (finishing) return;
     setFinishing(true);
     try {
       if (conceptId) await api.setConceptStatus(conceptId, 'complete');
-      navigate('/creator');
+      setShowFinish(false);
+      setAllDone(true);
+      setTimeout(() => navigate('/creator'), 1400);
     } catch (err) {
       alert(err.message);
       setFinishing(false);
     }
   }
 
-  // Finish → "Open Playbook": leave concept as pending_upload, go home.
-  function goHomePending() {
-    navigate('/creator');
+  // "Open Playbook": open the link in a new tab, then complete + All done.
+  function openPlaybookAndComplete() {
+    if (user?.playbook_link) window.open(user.playbook_link, '_blank', 'noopener,noreferrer');
+    completeConcept();
   }
 
   if (loadErr) return <div className={styles.page}><p style={{ padding: 24 }}>{loadErr}</p></div>;
@@ -367,24 +372,34 @@ export default function Guide() {
         >
           <div className={styles.modalCard}>
             <h3 className={styles.modalTitle}>Have you uploaded your footage to Playbook?</h3>
-            <p className={styles.modalSub}>Don't forget to upload before moving on.</p>
-            <a
+            <p className={styles.modalSub}>Don't forget to upload all raw clips and edited videos you just made before moving on!</p>
+            <button
+              type="button"
               className={styles.modalPrimary}
-              href={user?.playbook_link || '#'}
-              target="_blank"
-              rel="noreferrer"
-              onClick={goHomePending}
+              disabled={finishing}
+              onClick={openPlaybookAndComplete}
             >
               Open Playbook →
-            </a>
+            </button>
             <button
               type="button"
               className={styles.modalSecondary}
               disabled={finishing}
-              onClick={confirmUploaded}
+              onClick={completeConcept}
             >
               {finishing ? 'Saving…' : "I've already uploaded"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---- "All done!" confirmation ---- */}
+      {allDone && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <div style={{ fontSize: 40, marginBottom: 8 }}>🎉</div>
+            <h3 className={styles.modalTitle}>All done!</h3>
+            <p className={styles.modalSub}>Your concept is marked as complete.</p>
           </div>
         </div>
       )}
