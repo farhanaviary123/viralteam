@@ -413,26 +413,32 @@ export default function ShootPhase() {
               Don't forget to upload before moving on.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
-              <a
-                href={user?.playbook_link || '#'}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => {
+                  if (user?.playbook_link) {
+                    window.open(user.playbook_link, '_blank', 'noopener,noreferrer');
+                  } else {
+                    alert('No Playbook link assigned yet. Ask your strategist to set one.');
+                  }
+                }}
                 style={{
                   display: 'block',
                   width: '100%',
                   boxSizing: 'border-box',
                   padding: 14,
+                  border: 0,
                   borderRadius: 'var(--radius-btn)',
                   background: 'var(--green)',
                   color: '#fff',
                   fontSize: 15,
                   fontWeight: 600,
                   textAlign: 'center',
-                  textDecoration: 'none',
+                  cursor: 'pointer',
                 }}
               >
                 Open Playbook →
-              </a>
+              </button>
               <button
                 type="button"
                 onClick={confirmAndGoToEdit}
