@@ -162,7 +162,7 @@ export default function Guide() {
         <>
           <p className={styles.stepLabel}>STEP 1</p>
           <h2 className={styles.stepTitle}>How creative do you feel today?</h2>
-          <p className={styles.stepSub}>Pick the option that feels right. Both will help you make a great video.</p>
+          {/* <p className={styles.stepSub}>Pick the option that feels right. Both will help you make a great video.</p> */}
 
           <div className={styles.pathGrid}>
             <button className={styles.pathCard} disabled={creating} onClick={() => pickPath('from_video')}>
