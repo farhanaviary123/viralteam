@@ -214,7 +214,7 @@ export default function Guide() {
 
           {/* Which text to use — Path B: simple intro + ready texts */}
           {path === 'from_text' && c.which_text_b && (
-            <Accordion icon="📝" title={c.which_text_b.title || 'Which text to use'} defaultOpen>
+            <Accordion icon="📝" title={c.which_text_b.title || 'Which text to use'}>
               {c.which_text_b.intro && <p className={styles.bodyText}>{c.which_text_b.intro}</p>}
               {(c.which_text_b.headlines || []).map((h, i) => (
                 <div key={i} className={styles.headlineRow}>
