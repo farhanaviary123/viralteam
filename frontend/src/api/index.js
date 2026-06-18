@@ -70,6 +70,7 @@ export const api = {
   unarchiveAngle: (id) => req('PATCH', `/angles/${id}`, { archived: false }),
 
   // Copy lines
+  getRandomCopyLines: (limit = 5) => req('GET', `/copy-lines/random?limit=${limit}`),
   getCopyLinesByAngle: (angleId) => req('GET', `/copy-lines/by-angle/${angleId}`),
   getCopyLinesByAngleAndType: (angleId, type) => req('GET', `/copy-lines/by-angle/${angleId}/type/${type}`),
   createCopyLine: (body) => req('POST', '/copy-lines', body),

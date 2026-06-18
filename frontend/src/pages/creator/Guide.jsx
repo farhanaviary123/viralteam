@@ -68,12 +68,30 @@ function CopyChip({ text }) {
   );
 }
 
+// Renders the ready-to-use copy lines pulled from the DB. Each row is the line
+// text + a Copy button. Empty list → nothing rendered (DB has no copy lines yet).
+function HeadlineList({ lines = [] }) {
+  if (!lines.length) return null;
+  return (
+    <>
+      {lines.map((l) => (
+        <div key={l.id} className={styles.headlineRow}>
+          <p className={styles.headlineText}>{l.copy_text}</p>
+          <CopyChip text={l.copy_text} />
+        </div>
+      ))}
+    </>
+  );
+}
+
 export default function Guide() {
   const navigate = useNavigate();
   const { id } = useParams(); // present → "review" mode: reopen an existing concept
   const review = !!id;
   const { user } = useAuth();
   const [content, setContent] = useState(null);
+  const [copyLines, setCopyLines] = useState([]); // random ready-to-use headlines (Step 2)
+  const [songs, setSongs] = useState([]);         // trending sounds (Step 3)
   // Review mode skips Step 1 (path already chosen) and opens on Step 2.
   const [step, setStep] = useState(review ? 2 : 1); // 1 | 2 | 3
   const [path, setPath] = useState(null); // 'from_video' | 'from_text'
@@ -86,6 +104,12 @@ export default function Guide() {
 
   useEffect(() => {
     api.getGuideContent().then(setContent).catch(() => setContent({}));
+    // Step 2 headlines + Step 3 sounds are data-driven. Empty DB → empty arrays
+    // (the wizard renders the static guidance and simply omits the lists).
+    api.getRandomCopyLines(5).then(setCopyLines).catch(() => setCopyLines([]));
+    api.getSongs()
+      .then(rows => setSongs((rows || []).filter(s => s.status === 'active')))
+      .catch(() => setSongs([]));
   }, []);
 
   // Review mode: load the concept to recover which creative path it used.
@@ -216,12 +240,7 @@ export default function Guide() {
           {path === 'from_text' && c.which_text_b && (
             <Accordion icon="📝" title={c.which_text_b.title || 'Which text to use'}>
               {c.which_text_b.intro && <p className={styles.bodyText}>{c.which_text_b.intro}</p>}
-              {(c.which_text_b.headlines || []).map((h, i) => (
-                <div key={i} className={styles.headlineRow}>
-                  <p className={styles.headlineText}>{h}</p>
-                  <CopyChip text={h} />
-                </div>
-              ))}
+              <HeadlineList lines={copyLines} />
             </Accordion>
           )}
 
@@ -287,14 +306,9 @@ export default function Guide() {
                   <p className={styles.bonusNote}>{w.bonus_note}</p>
                 )}
 
-                {/* Ready-to-use headlines */}
+                {/* Ready-to-use headlines (pulled from the copy_lines table) */}
                 {w.ready_intro && <p className={styles.bodyText}>{w.ready_intro}</p>}
-                {(w.headlines || []).map((h, i) => (
-                  <div key={i} className={styles.headlineRow}>
-                    <p className={styles.headlineText}>{h}</p>
-                    <CopyChip text={h} />
-                  </div>
-                ))}
+                <HeadlineList lines={copyLines} />
               </Accordion>
             );
           })()}
@@ -336,21 +350,18 @@ export default function Guide() {
             </Accordion>
           )}
 
-          {/* Which sound to use */}
-          {c.editing?.sounds?.length > 0 && (
+          {/* Which sound to use — pulled from the songs table */}
+          {songs.length > 0 && (
             <Accordion icon="🎵" title="Which sound to use">
-              {c.editing.sounds.map((s, i) => (
-                <div key={i} className={styles.soundRow}>
-                  <p className={styles.soundLabel}>{s.label || `Trending sound ${i + 1}`}</p>
+              {songs.map((s, i) => (
+                <div key={s.id} className={styles.soundRow}>
+                  <p className={styles.soundLabel}>{s.name || `Trending sound ${i + 1}`}</p>
                   <div className={styles.soundBtns}>
-                    {s.play_url && (
-                      <a className={styles.soundBtn} href={s.play_url} target="_blank" rel="noreferrer">▶ Play</a>
+                    {s.tiktok_link && (
+                      <a className={styles.soundBtn} href={s.tiktok_link} target="_blank" rel="noreferrer">▶ TikTok</a>
                     )}
-                    {s.download_url && (
-                      <a className={styles.soundBtn} href={s.download_url} target="_blank" rel="noreferrer">↓ Download</a>
-                    )}
-                    {s.sound_url && (
-                      <a className={styles.soundBtn} href={s.sound_url} target="_blank" rel="noreferrer">Sound →</a>
+                    {s.link && (
+                      <a className={styles.soundBtn} href={s.link} target="_blank" rel="noreferrer">Sound →</a>
                     )}
                   </div>
                 </div>

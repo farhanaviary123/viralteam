@@ -43,6 +43,35 @@ router.get('/archived', requireRole('strategist'), async (req, res) => {
   }
 });
 
+// GET /api/copy-lines/random?limit=5 — any authenticated user.
+// Returns up to `limit` random active, non-archived copy lines, ignoring angle.
+// Used by the creator Guide wizard (Step 2) to surface ready-to-use headlines.
+// Returns [] when the table is empty so the wizard renders gracefully.
+router.get('/random', async (req, res) => {
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 5, 1), 20);
+  try {
+    const { rows } = await db.query(
+      `SELECT * FROM copy_lines
+         WHERE status = 'active' AND COALESCE(archived, FALSE) = FALSE
+         ORDER BY random()
+         LIMIT $1`,
+      [limit]
+    );
+    return res.json(rows);
+  } catch (err) {
+    // Pre-v20 (no archived column) — fall back without the archived filter.
+    if (err.code === '42703') {
+      const { rows } = await db.query(
+        `SELECT * FROM copy_lines WHERE status = 'active' ORDER BY random() LIMIT $1`,
+        [limit]
+      );
+      return res.json(rows);
+    }
+    if (err.code === '42P01') return res.json([]); // table not yet migrated
+    throw err;
+  }
+});
+
 router.get('/by-angle/:angleId', async (req, res) => {
   const rows = await selectByAngle(req.params.angleId);
   const withVibes = await attachVibes(rows, 'copy_line_vibes', 'copy_line_id');
