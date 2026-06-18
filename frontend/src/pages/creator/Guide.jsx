@@ -108,7 +108,7 @@ export default function Guide() {
     // (the wizard renders the static guidance and simply omits the lists).
     api.getRandomCopyLines(5).then(setCopyLines).catch(() => setCopyLines([]));
     api.getSongs()
-      .then(rows => setSongs((rows || []).filter(s => s.status === 'active')))
+      .then(rows => setSongs((rows || []).filter(s => s.status === 'active').slice(0, 5)))
       .catch(() => setSongs([]));
   }, []);
 
