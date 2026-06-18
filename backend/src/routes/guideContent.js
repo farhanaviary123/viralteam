@@ -21,43 +21,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/guide-content/picks — random copy lines + songs for the Guide
-// wizard. Any authenticated user. Self-contained (no vibe joins) so it works
-// regardless of which optional tables exist. Returns shuffled active rows.
-router.get('/picks', async (req, res) => {
-  let copy_lines = [];
-  let songs = [];
-  // No status filter — fetch every row, shuffled. Skip archived copy lines
-  // (soft-deleted) when that column exists.
-  try {
-    const r = await db.query(
-      "SELECT id, copy_text FROM copy_lines WHERE archived = false ORDER BY random()"
-    );
-    copy_lines = r.rows;
-  } catch (err) {
-    if (err.code === '42703') {
-      // archived column missing — fetch all.
-      const r = await db.query('SELECT id, copy_text FROM copy_lines ORDER BY random()');
-      copy_lines = r.rows;
-    } else if (err.code !== '42P01') {
-      throw err; // table missing → empty list
-    }
-  }
-  try {
-    const r = await db.query('SELECT id, name, link, tiktok_link FROM songs ORDER BY random()');
-    songs = r.rows;
-  } catch (err) {
-    if (err.code === '42703') {
-      // tiktok_link column missing — retry without it.
-      const r = await db.query('SELECT id, name, link FROM songs ORDER BY random()');
-      songs = r.rows;
-    } else if (err.code !== '42P01') {
-      throw err; // table missing → empty list
-    }
-  }
-  res.json({ copy_lines, songs });
-});
-
 // PATCH /api/guide-content — strategist-only. Replaces the whole content blob.
 // The editor sends the full object back, so a straight upsert is simplest.
 router.patch('/', requireRole('strategist'), async (req, res) => {

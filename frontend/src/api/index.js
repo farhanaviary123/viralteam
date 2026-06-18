@@ -148,7 +148,6 @@ export const api = {
 
   // Guide content (v21 — backend-driven creator Guide wizard copy/links)
   getGuideContent: () => req('GET', '/guide-content'),
-  getGuidePicks: () => req('GET', '/guide-content/picks'),
   updateGuideContent: (body) => req('PATCH', '/guide-content', body),
 
   // Stats
