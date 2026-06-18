@@ -24,6 +24,7 @@ app.use('/api/performance', require('./routes/performance'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/guide-content', require('./routes/guideContent'));
+app.use('/api', require('./routes/conceptUploads')); // /concepts/:id/uploads, /uploads/:id/download, /concept-uploads/summary
 
 app.use((err, req, res, next) => {
   console.error(err);
