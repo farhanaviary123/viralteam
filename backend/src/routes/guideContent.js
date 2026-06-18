@@ -27,23 +27,29 @@ router.get('/', async (req, res) => {
 router.get('/picks', async (req, res) => {
   let copy_lines = [];
   let songs = [];
+  // No status filter — fetch every row, shuffled. Skip archived copy lines
+  // (soft-deleted) when that column exists.
   try {
     const r = await db.query(
-      "SELECT id, copy_text FROM copy_lines WHERE status = 'active' ORDER BY random()"
+      "SELECT id, copy_text FROM copy_lines WHERE archived = false ORDER BY random()"
     );
     copy_lines = r.rows;
   } catch (err) {
-    if (err.code !== '42P01') throw err; // table missing → empty list
+    if (err.code === '42703') {
+      // archived column missing — fetch all.
+      const r = await db.query('SELECT id, copy_text FROM copy_lines ORDER BY random()');
+      copy_lines = r.rows;
+    } else if (err.code !== '42P01') {
+      throw err; // table missing → empty list
+    }
   }
   try {
-    const r = await db.query(
-      "SELECT id, name, link, tiktok_link FROM songs WHERE status = 'active' ORDER BY random()"
-    );
+    const r = await db.query('SELECT id, name, link, tiktok_link FROM songs ORDER BY random()');
     songs = r.rows;
   } catch (err) {
     if (err.code === '42703') {
       // tiktok_link column missing — retry without it.
-      const r = await db.query("SELECT id, name, link FROM songs WHERE status = 'active' ORDER BY random()");
+      const r = await db.query('SELECT id, name, link FROM songs ORDER BY random()');
       songs = r.rows;
     } else if (err.code !== '42P01') {
       throw err; // table missing → empty list
