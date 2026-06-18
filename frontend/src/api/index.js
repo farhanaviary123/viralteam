@@ -71,6 +71,7 @@ export const api = {
 
   // Copy lines
   getRandomCopyLines: (limit = 5) => req('GET', `/copy-lines/random?limit=${limit}`),
+  getCopyLinesGrouped: () => req('GET', '/copy-lines/grouped'),
   getCopyLinesByAngle: (angleId) => req('GET', `/copy-lines/by-angle/${angleId}`),
   getCopyLinesByAngleAndType: (angleId, type) => req('GET', `/copy-lines/by-angle/${angleId}/type/${type}`),
   createCopyLine: (body) => req('POST', '/copy-lines', body),

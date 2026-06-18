@@ -92,6 +92,9 @@ export default function Guide() {
   const [content, setContent] = useState(null);
   const [copyLines, setCopyLines] = useState([]); // random ready-to-use headlines (Step 2)
   const [songs, setSongs] = useState([]);         // trending sounds (Step 3)
+  const [showAllHeadlines, setShowAllHeadlines] = useState(false); // "See all headlines" popup
+  const [groupedLines, setGroupedLines] = useState(null);          // angle-grouped lines (lazy-loaded)
+  const [groupedErr, setGroupedErr] = useState(null);
   // Review mode skips Step 1 (path already chosen) and opens on Step 2.
   const [step, setStep] = useState(review ? 2 : 1); // 1 | 2 | 3
   const [path, setPath] = useState(null); // 'from_video' | 'from_text'
@@ -134,6 +137,17 @@ export default function Guide() {
       setPath(null);
     } finally {
       setCreating(false);
+    }
+  }
+
+  // "See all headlines": open the popup and lazy-load the angle-grouped lines
+  // (only the first open hits the network).
+  function openAllHeadlines() {
+    setShowAllHeadlines(true);
+    if (groupedLines === null) {
+      api.getCopyLinesGrouped()
+        .then(setGroupedLines)
+        .catch(err => setGroupedErr(err.message));
     }
   }
 
@@ -241,6 +255,9 @@ export default function Guide() {
             <Accordion icon="📝" title={c.which_text_b.title || 'Which text to use'}>
               {c.which_text_b.intro && <p className={styles.bodyText}>{c.which_text_b.intro}</p>}
               <HeadlineList lines={copyLines} />
+              <button type="button" className={styles.seeAllBtn} onClick={openAllHeadlines}>
+                See all headlines
+              </button>
             </Accordion>
           )}
 
@@ -309,6 +326,9 @@ export default function Guide() {
                 {/* Ready-to-use headlines (pulled from the copy_lines table) */}
                 {w.ready_intro && <p className={styles.bodyText}>{w.ready_intro}</p>}
                 <HeadlineList lines={copyLines} />
+                <button type="button" className={styles.seeAllBtn} onClick={openAllHeadlines}>
+                  See all headlines
+                </button>
               </Accordion>
             );
           })()}
@@ -373,6 +393,48 @@ export default function Guide() {
             Finish
           </button>
         </>
+      )}
+
+      {/* ---- "See all headlines" popup: every active headline, by angle ---- */}
+      {showAllHeadlines && (
+        <div
+          className={styles.modalOverlay}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowAllHeadlines(false); }}
+        >
+          <div className={styles.allHeadlinesCard}>
+            <div className={styles.allHeadlinesHeader}>
+              <h3 className={styles.modalTitle}>All headlines</h3>
+              <button
+                type="button"
+                className={styles.closeX}
+                aria-label="Close"
+                onClick={() => setShowAllHeadlines(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.allHeadlinesBody}>
+              {groupedErr && <p className={styles.bodyText}>{groupedErr}</p>}
+              {!groupedErr && groupedLines === null && (
+                <p className={styles.bodyText}>Loading…</p>
+              )}
+              {!groupedErr && groupedLines !== null && groupedLines.length === 0 && (
+                <p className={styles.bodyText}>No headlines yet.</p>
+              )}
+              {(groupedLines || []).map((g) => (
+                <div key={g.angle_id} className={styles.angleGroup}>
+                  <p className={styles.angleName}>{g.angle_name}</p>
+                  {g.lines.map((l) => (
+                    <div key={l.id} className={styles.headlineRow}>
+                      <p className={styles.headlineText}>{l.copy_text}</p>
+                      <CopyChip text={l.copy_text} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ---- Finish / Playbook reminder modal ---- */}

@@ -72,6 +72,43 @@ router.get('/random', async (req, res) => {
   }
 });
 
+// GET /api/copy-lines/grouped — any authenticated user.
+// Returns active, non-archived copy lines grouped by their angle:
+//   [{ angle_id, angle_name, lines: [{ id, copy_text, copy_type }] }, ...]
+// Used by the creator Guide "See all headlines" popup. Angles with no active
+// lines are omitted. Returns [] when nothing matches / table not yet migrated.
+router.get('/grouped', async (req, res) => {
+  const sql = (withArchived) => `
+    SELECT a.id AS angle_id, a.name AS angle_name,
+           cl.id, cl.copy_text, cl.copy_type
+    FROM copy_lines cl
+    JOIN angles a ON a.id = cl.angle_id
+    WHERE cl.status = 'active' ${withArchived ? 'AND COALESCE(cl.archived, FALSE) = FALSE' : ''}
+    ORDER BY a.priority_weight DESC, a.created_at ASC, cl.created_at ASC
+  `;
+  let rows;
+  try {
+    ({ rows } = await db.query(sql(true)));
+  } catch (err) {
+    if (err.code === '42P01') return res.json([]); // table not yet migrated
+    if (err.code !== '42703') throw err;
+    ({ rows } = await db.query(sql(false))); // pre-v20: no archived column
+  }
+  // Fold the flat rows into angle groups, preserving the ORDER BY ordering.
+  const groups = [];
+  const byAngle = new Map();
+  for (const r of rows) {
+    let g = byAngle.get(r.angle_id);
+    if (!g) {
+      g = { angle_id: r.angle_id, angle_name: r.angle_name, lines: [] };
+      byAngle.set(r.angle_id, g);
+      groups.push(g);
+    }
+    g.lines.push({ id: r.id, copy_text: r.copy_text, copy_type: r.copy_type });
+  }
+  res.json(groups);
+});
+
 router.get('/by-angle/:angleId', async (req, res) => {
   const rows = await selectByAngle(req.params.angleId);
   const withVibes = await attachVibes(rows, 'copy_line_vibes', 'copy_line_id');
