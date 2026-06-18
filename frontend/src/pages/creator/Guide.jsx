@@ -183,6 +183,20 @@ export default function Guide() {
     }
   }
 
+  // Finish later: upload anything already selected, but keep the concept in
+  // pending_upload so the creator can come back and add the rest. Go home.
+  async function finishLater() {
+    if (uploading || finishing) return;
+    setUploading(true);
+    try {
+      if (files.length && conceptId) await api.uploadConceptFiles(conceptId, files);
+      navigate('/creator');
+    } catch (err) {
+      alert(err.message);
+      setUploading(false);
+    }
+  }
+
   if (loadErr) return <div className={styles.page}><p style={{ padding: 24 }}>{loadErr}</p></div>;
   if (!content) return null;
   // Review mode: wait until we know which path the concept used.
@@ -496,6 +510,14 @@ export default function Guide() {
               onClick={uploadAndComplete}
             >
               {uploading ? 'Uploading…' : `Upload${files.length ? ` ${files.length} file${files.length > 1 ? 's' : ''}` : ''} & Finish`}
+            </button>
+            <button
+              type="button"
+              className={styles.modalSecondary}
+              disabled={uploading}
+              onClick={finishLater}
+            >
+              Finish later
             </button>
           </div>
         </div>
