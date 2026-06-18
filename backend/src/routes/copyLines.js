@@ -52,7 +52,7 @@ router.get('/random', async (req, res) => {
   try {
     const { rows } = await db.query(
       `SELECT * FROM copy_lines
-         WHERE status = 'active' AND COALESCE(archived, FALSE) = FALSE
+         WHERE archived = FALSE
          ORDER BY random()
          LIMIT $1`,
       [limit]
