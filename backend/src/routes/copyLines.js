@@ -62,7 +62,7 @@ router.get('/random', async (req, res) => {
     // Pre-v20 (no archived column) — fall back without the archived filter.
     if (err.code === '42703') {
       const { rows } = await db.query(
-        `SELECT * FROM copy_lines WHERE status = 'active' ORDER BY random() LIMIT $1`,
+        `SELECT * FROM copy_lines WHERE archived = FALSE ORDER BY random() LIMIT $1`,
         [limit]
       );
       return res.json(rows);
@@ -79,7 +79,7 @@ router.get('/by-angle/:angleId', async (req, res) => {
 });
 
 router.get('/by-angle/:angleId/type/:copyType', async (req, res) => {
-  const rows = await selectByAngle(req.params.angleId, "AND copy_type=$2 AND status='active'", [req.params.copyType]);
+  const rows = await selectByAngle(req.params.angleId, "AND copy_type=$2 AND archived = FALSE", [req.params.copyType]);
   const withVibes = await attachVibes(rows, 'copy_line_vibes', 'copy_line_id');
   res.json(withVibes);
 });
