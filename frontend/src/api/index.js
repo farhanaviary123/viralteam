@@ -45,8 +45,43 @@ async function uploadFile(file) {
   return data; // { url, key, bucket, mime, size }
 }
 
+// Upload one or more footage files to a concept (field name: "files").
+async function uploadConceptFiles(conceptId, files) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const fd = new FormData();
+  for (const f of files) fd.append('files', f);
+  const res = await fetch(`${BASE}/concepts/${conceptId}/uploads`, { method: 'POST', headers, body: fd });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Upload failed');
+  return data;
+}
+
 export const api = {
   uploadFile,
+  uploadConceptFiles,
+  // Concept uploads (v22 — in-app footage upload, replaces Playbook link)
+  getConceptUploads: (id) => req('GET', `/concepts/${id}/uploads`),
+  deleteConceptUpload: (uploadId) => req('DELETE', `/uploads/${uploadId}`),
+  getConceptUploadsSummary: () => req('GET', '/concept-uploads/summary'),
+  // Download a stored file with auth → browser save dialog.
+  downloadConceptUpload: async (uploadId, filename) => {
+    const headers = {};
+    const token = getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${BASE}/uploads/${uploadId}/download`, { headers });
+    if (!res.ok) throw new Error('Download failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || 'download';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
   // Auth
   login: (body) => req('POST', '/auth/login', body),
   register: (body) => req('POST', '/auth/register', body),

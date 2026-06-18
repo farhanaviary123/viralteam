@@ -8,6 +8,7 @@ const navItems = [
   { to: '/strategist/creators', label: 'Creators' },
   { to: '/strategist/performance', label: 'Performance' },
   { to: '/strategist/guide', label: 'Guide Content' },
+  { to: '/strategist/uploads', label: 'Uploads' },
 ];
 
 export default function StrategistLayout({ children }) {

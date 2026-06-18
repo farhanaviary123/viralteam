@@ -101,6 +101,8 @@ export default function Guide() {
   const [conceptId, setConceptId] = useState(id || null);
   const [creating, setCreating] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
+  const [files, setFiles] = useState([]); // footage selected in the Finish modal
+  const [uploading, setUploading] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [loadErr, setLoadErr] = useState(null);
@@ -151,8 +153,7 @@ export default function Guide() {
     }
   }
 
-  // Both Finish actions mark the concept complete, then show "All done!" and
-  // redirect home. "Open Playbook" additionally opens the Playbook link.
+  // Mark complete → "All done!" → home.
   async function completeConcept() {
     if (finishing) return;
     setFinishing(true);
@@ -167,10 +168,19 @@ export default function Guide() {
     }
   }
 
-  // "Open Playbook": open the link in a new tab, then complete + All done.
-  function openPlaybookAndComplete() {
-    if (user?.playbook_link) window.open(user.playbook_link, '_blank', 'noopener,noreferrer');
-    completeConcept();
+  // Finish: upload the selected footage to the concept, then complete.
+  async function uploadAndComplete() {
+    if (uploading || finishing) return;
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      if (conceptId) await api.uploadConceptFiles(conceptId, files);
+      await completeConcept();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
   }
 
   if (loadErr) return <div className={styles.page}><p style={{ padding: 24 }}>{loadErr}</p></div>;
@@ -437,30 +447,55 @@ export default function Guide() {
         </div>
       )}
 
-      {/* ---- Finish / Playbook reminder modal ---- */}
+      {/* ---- Finish / footage upload modal ---- */}
       {showFinish && (
         <div
           className={styles.modalOverlay}
-          onClick={(e) => { if (e.target === e.currentTarget) setShowFinish(false); }}
+          onClick={(e) => { if (e.target === e.currentTarget && !uploading) setShowFinish(false); }}
         >
           <div className={styles.modalCard}>
-            <h3 className={styles.modalTitle}>Have you uploaded your footage to Playbook?</h3>
-            <p className={styles.modalSub}>Don't forget to upload all raw clips and edited videos you just made before moving on!</p>
+            <h3 className={styles.modalTitle}>Upload your footage</h3>
+            <p className={styles.modalSub}>Add all the raw clips and edited videos you just made. We'll take it from here.</p>
+
+            <label className={styles.uploadDrop}>
+              <input
+                type="file"
+                multiple
+                accept="video/*,image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => setFiles(prev => [...prev, ...Array.from(e.target.files || [])])}
+              />
+              <span className={styles.uploadDropIcon}>⬆️</span>
+              <span className={styles.uploadDropText}>Tap to choose files</span>
+              <span className={styles.uploadDropHint}>Videos or images · up to 50 MB each</span>
+            </label>
+
+            {files.length > 0 && (
+              <div className={styles.uploadList}>
+                {files.map((f, i) => (
+                  <div key={i} className={styles.uploadItem}>
+                    <span className={styles.uploadItemName}>{f.name}</span>
+                    <span className={styles.uploadItemSize}>{(f.size / 1024 / 1024).toFixed(1)} MB</span>
+                    {!uploading && (
+                      <button
+                        type="button"
+                        className={styles.uploadItemRemove}
+                        onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}
+                        aria-label="Remove"
+                      >✕</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <button
               type="button"
               className={styles.modalPrimary}
-              disabled={finishing}
-              onClick={openPlaybookAndComplete}
+              disabled={!files.length || uploading}
+              onClick={uploadAndComplete}
             >
-              Open Playbook →
-            </button>
-            <button
-              type="button"
-              className={styles.modalSecondary}
-              disabled={finishing}
-              onClick={completeConcept}
-            >
-              {finishing ? 'Saving…' : "I've already uploaded"}
+              {uploading ? 'Uploading…' : `Upload${files.length ? ` ${files.length} file${files.length > 1 ? 's' : ''}` : ''} & Finish`}
             </button>
           </div>
         </div>
