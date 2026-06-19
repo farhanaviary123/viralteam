@@ -117,4 +117,35 @@ router.delete('/:id', requireRole('strategist'), async (req, res) => {
   }
 });
 
+// GET /api/songs/:id/download — proxy the song's audio file through the server
+// so the browser saves it instead of opening the link. The source (e.g. an
+// Instagram audio URL) blocks direct cross-origin fetch from the browser, so we
+// pull it server-side (no CORS) and re-stream it as an attachment.
+router.get('/:id/download', async (req, res) => {
+  const { rows } = await db.query('SELECT name, link FROM songs WHERE id=$1', [req.params.id]);
+  const song = rows[0];
+  if (!song || !song.link) return res.status(404).json({ error: 'Not found' });
+
+  let upstream;
+  try {
+    upstream = await fetch(song.link, { redirect: 'follow' });
+  } catch (err) {
+    console.error('[songs download] fetch failed', song.link, err);
+    return res.status(502).json({ error: 'Could not fetch audio source' });
+  }
+  if (!upstream.ok || !upstream.body) {
+    return res.status(502).json({ error: `Audio source returned ${upstream.status}` });
+  }
+
+  const mime = upstream.headers.get('content-type') || 'audio/mpeg';
+  const ext = (song.link.match(/\.(mp3|wav|m4a|aac|ogg|oga)(?:\?|$)/i)?.[1]) || 'mp3';
+  const filename = `${(song.name || 'song').replace(/[^a-z0-9-_]+/gi, '_')}.${ext}`;
+  res.setHeader('Content-Type', mime);
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+  // Stream the upstream body to the client (Node 18+ web stream → Node stream).
+  const { Readable } = require('stream');
+  Readable.fromWeb(upstream.body).pipe(res);
+});
+
 module.exports = router;

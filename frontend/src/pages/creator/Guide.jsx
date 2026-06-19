@@ -84,25 +84,16 @@ function VideoEmbed({ url, label }) {
   );
 }
 
-// Download a song file to the local machine. Fetches the file as a blob and
-// triggers a save, so it downloads instead of opening in a new tab. Falls back
-// to opening the URL if the fetch is blocked (e.g. CORS).
-async function downloadSong(url, name) {
-  if (!url) return;
+// Download a song file to the local machine. The audio source (e.g. Instagram
+// audio) blocks direct cross-origin fetch from the browser, so we proxy through
+// the backend, which streams it back as an attachment.
+async function downloadSong(id, name) {
+  if (!id) return;
   try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    const ext = (url.match(/\.(mp3|wav|m4a|aac|ogg|oga)(?:\?|$)/i)?.[1]) || 'mp3';
-    a.download = `${(name || 'song').replace(/[^a-z0-9-_]+/gi, '_')}.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-  } catch {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    await api.downloadSong(id, name);
+  } catch (err) {
+    console.error('[downloadSong] failed', err);
+    alert('Could not download this sound. Try again later.');
   }
 }
 
@@ -483,7 +474,7 @@ export default function Guide() {
                       <button
                         type="button"
                         className={styles.soundBtn}
-                        onClick={() => downloadSong(s.link, s.name)}
+                        onClick={() => downloadSong(s.id, s.name)}
                       >
                         ↓ Download
                       </button>

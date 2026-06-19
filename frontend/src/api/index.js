@@ -125,6 +125,26 @@ export const api = {
 
   // Songs
   getSongs: () => req('GET', '/songs'),
+  // Download a song's audio via the backend proxy (handles CORS-blocked
+  // sources like Instagram audio) → browser save dialog.
+  downloadSong: async (id, name) => {
+    const headers = {};
+    const token = getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${BASE}/songs/${id}/download`, { headers });
+    if (!res.ok) throw new Error('Download failed');
+    const blob = await res.blob();
+    const dispo = res.headers.get('content-disposition') || '';
+    const fromHeader = dispo.match(/filename="?([^"]+)"?/i)?.[1];
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fromHeader || `${(name || 'song').replace(/[^a-z0-9-_]+/gi, '_')}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
   createSong: (body) => req('POST', '/songs', body),
   updateSong: (id, body) => req('PATCH', `/songs/${id}`, body),
   deleteSong: (id) => req('DELETE', `/songs/${id}`),
