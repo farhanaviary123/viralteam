@@ -84,6 +84,28 @@ function VideoEmbed({ url, label }) {
   );
 }
 
+// Download a song file to the local machine. Fetches the file as a blob and
+// triggers a save, so it downloads instead of opening in a new tab. Falls back
+// to opening the URL if the fetch is blocked (e.g. CORS).
+async function downloadSong(url, name) {
+  if (!url) return;
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    const ext = (url.match(/\.(mp3|wav|m4a|aac|ogg|oga)(?:\?|$)/i)?.[1]) || 'mp3';
+    a.download = `${(name || 'song').replace(/[^a-z0-9-_]+/gi, '_')}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  } catch {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+}
+
 function Rule({ emoji, children }) {
   return (
     <div className={styles.ruleRow}>
@@ -295,7 +317,7 @@ export default function Guide() {
 
           {/* Visuals basic learnings */}
           {c.visuals_learnings && (
-            <Accordion icon="✨" title={c.visuals_learnings.title || 'Visuals Basic learnings'}>
+            <Accordion icon="✨" title={c.visuals_learnings.title || 'Visuals Basic learnings'} defaultOpen>
               {c.visuals_learnings.charm_timing && (
                 <Rule emoji="⏱">
                   <b>Charm timing.</b> {c.visuals_learnings.charm_timing}
@@ -458,7 +480,13 @@ export default function Guide() {
                       <a className={styles.soundBtn} href={s.tiktok_link} target="_blank" rel="noreferrer">IG/TikTok Link →</a>
                     )}
                     {s.link && (
-                      <a className={styles.soundBtn} href={s.link} target="_blank" rel="noreferrer">Sound →</a>
+                      <button
+                        type="button"
+                        className={styles.soundBtn}
+                        onClick={() => downloadSong(s.link, s.name)}
+                      >
+                        ↓ Download
+                      </button>
                     )}
                   </div>
                 </div>
