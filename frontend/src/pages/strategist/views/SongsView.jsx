@@ -138,6 +138,7 @@ function SongModal({ song, vibes, onClose, onSaved, onDeleted, onVibeCreated, on
     name: song?.name || '',
     link: song?.link || '',
     tiktok_link: song?.tiktok_link || '',
+    platform: song?.platform || 'tiktok',
     status: song?.status || 'active',
     priority_weight: song?.priority_weight || 3,
   });
@@ -188,14 +189,21 @@ function SongModal({ song, vibes, onClose, onSaved, onDeleted, onVibeCreated, on
           />
         </div>
         <div>
-          <label className={styles.label}>TikTok link (optional)</label>
+          <label className={styles.label}>IG/TikTok link (optional)</label>
           <input
             className={styles.input}
             type="url"
             value={form.tiktok_link}
             onChange={set('tiktok_link')}
-            placeholder="https://www.tiktok.com/..."
+            placeholder="https://www.tiktok.com/... or https://www.instagram.com/..."
           />
+        </div>
+        <div>
+          <label className={styles.label}>IG/TikTok platform</label>
+          <select className={styles.select} value={form.platform} onChange={set('platform')}>
+            <option value="tiktok">TikTok</option>
+            <option value="ig">Instagram</option>
+          </select>
         </div>
         <div>
           <label className={styles.label}>Status</label>

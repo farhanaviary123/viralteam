@@ -38,6 +38,73 @@ const TABS = [
   { key: 'step3', label: 'Step 3 — Editing' },
 ];
 
+/* ---- collapsible section card ----
+   Hoisted out of GuideContentEditor: defining it inside the component gave it a
+   new function identity on every keystroke, so React remounted the whole
+   subtree — stealing input focus and scrolling to the top. */
+function Section({ id, title, children, defaultOpen = true, open, setOpen }) {
+  const isOpen = open[id] === undefined ? defaultOpen : open[id];
+  return (
+    <div style={{ background: '#fff', border: '1px solid #E6E0D4', borderRadius: 12, marginBottom: 16, overflow: 'hidden' }}>
+      <button
+        onClick={() => setOpen(o => ({ ...o, [id]: !isOpen }))}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'none', border: 'none', padding: '16px 18px', cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <span style={{ fontSize: 15, fontWeight: 700, color: '#1F1B14' }}>{title}</span>
+        <span style={{ color: '#857D70', fontSize: 13 }}>{isOpen ? '▲' : '▼'}</span>
+      </button>
+      {isOpen && <div style={{ padding: '0 18px 18px', borderTop: '1px solid #F0EBE0' }}>{children}</div>}
+    </div>
+  );
+}
+
+/* ---- drag-reorderable list of plain-string items ----
+   Also hoisted (same remount-on-keystroke bug as Section). */
+function DragList({ path, label, data, up, drag, setDrag }) {
+  const arr = (path.reduce((o, k) => o?.[k], data)) || [];
+  const key = path.join('.');
+  function move(from, to) {
+    if (from === to || to < 0 || to >= arr.length) return;
+    const copy = arr.slice();
+    const [m] = copy.splice(from, 1);
+    copy.splice(to, 0, m);
+    up(path, copy);
+  }
+  return (
+    <>
+      <label style={fieldLabel}>{label}</label>
+      {arr.map((s, i) => {
+        const isDragging = drag && drag.key === key && drag.index === i;
+        return (
+          <div
+            key={i}
+            draggable
+            onDragStart={() => setDrag({ key, index: i })}
+            onDragEnd={() => setDrag(null)}
+            onDragOver={e => { e.preventDefault(); if (drag && drag.key === key && drag.index !== i) { move(drag.index, i); setDrag({ key, index: i }); } }}
+            style={{
+              display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start',
+              opacity: isDragging ? 0.5 : 1,
+            }}
+          >
+            <span title="Drag to reorder" style={{ cursor: 'grab', color: '#B7AE9E', fontSize: 18, lineHeight: '40px', userSelect: 'none', flex: '0 0 auto' }}>⠿</span>
+            <textarea
+              style={{ ...textarea, minHeight: 40 }}
+              value={s}
+              onChange={e => up(path, arr.map((x, j) => j === i ? e.target.value : x))}
+            />
+            <button style={rowBtn} onClick={() => up(path, arr.filter((_, j) => j !== i))}>✕</button>
+          </div>
+        );
+      })}
+      <button style={smallBtn} onClick={() => up(path, [...arr, ''])}>+ Add</button>
+    </>
+  );
+}
+
 export default function GuideContentEditor() {
   const [data, setData] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -74,69 +141,6 @@ export default function GuideContentEditor() {
   const wtb = data.which_text_b || {};
   const ed = data.editing || {};
   const tl = ed.text_learnings || {};
-
-  /* ---- collapsible section card ---- */
-  function Section({ id, title, children, defaultOpen = true }) {
-    const isOpen = open[id] === undefined ? defaultOpen : open[id];
-    return (
-      <div style={{ background: '#fff', border: '1px solid #E6E0D4', borderRadius: 12, marginBottom: 16, overflow: 'hidden' }}>
-        <button
-          onClick={() => setOpen(o => ({ ...o, [id]: !isOpen }))}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'none', border: 'none', padding: '16px 18px', cursor: 'pointer', textAlign: 'left',
-          }}
-        >
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#1F1B14' }}>{title}</span>
-          <span style={{ color: '#857D70', fontSize: 13 }}>{isOpen ? '▲' : '▼'}</span>
-        </button>
-        {isOpen && <div style={{ padding: '0 18px 18px', borderTop: '1px solid #F0EBE0' }}>{children}</div>}
-      </div>
-    );
-  }
-
-  /* ---- drag-reorderable list of plain-string items ---- */
-  function DragList({ path, label }) {
-    const arr = (path.reduce((o, k) => o?.[k], data)) || [];
-    const key = path.join('.');
-    function move(from, to) {
-      if (from === to || to < 0 || to >= arr.length) return;
-      const copy = arr.slice();
-      const [m] = copy.splice(from, 1);
-      copy.splice(to, 0, m);
-      up(path, copy);
-    }
-    return (
-      <>
-        <label style={fieldLabel}>{label}</label>
-        {arr.map((s, i) => {
-          const isDragging = drag && drag.key === key && drag.index === i;
-          return (
-            <div
-              key={i}
-              draggable
-              onDragStart={() => setDrag({ key, index: i })}
-              onDragEnd={() => setDrag(null)}
-              onDragOver={e => { e.preventDefault(); if (drag && drag.key === key && drag.index !== i) { move(drag.index, i); setDrag({ key, index: i }); } }}
-              style={{
-                display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start',
-                opacity: isDragging ? 0.5 : 1,
-              }}
-            >
-              <span title="Drag to reorder" style={{ cursor: 'grab', color: '#B7AE9E', fontSize: 18, lineHeight: '40px', userSelect: 'none', flex: '0 0 auto' }}>⠿</span>
-              <textarea
-                style={{ ...textarea, minHeight: 40 }}
-                value={s}
-                onChange={e => up(path, arr.map((x, j) => j === i ? e.target.value : x))}
-              />
-              <button style={rowBtn} onClick={() => up(path, arr.filter((_, j) => j !== i))}>✕</button>
-            </div>
-          );
-        })}
-        <button style={smallBtn} onClick={() => up(path, [...arr, ''])}>+ Add</button>
-      </>
-    );
-  }
 
   return (
     <StrategistLayout>
@@ -183,15 +187,15 @@ export default function GuideContentEditor() {
           {/* ===== STEP 1 ===== */}
           {tab === 'step1' && (
             <>
-              <Section id="from_video" title="Path A — From a viral video">
+              <Section id="from_video" title="Path A — From a viral video" open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Section title</label>
                 <input style={input} value={data.from_video?.title || ''} onChange={e => up(['from_video', 'title'], e.target.value)} />
-                <DragList path={['from_video', 'steps']} label="Steps" />
+                <DragList path={['from_video', 'steps']} label="Steps" data={data} up={up} drag={drag} setDrag={setDrag} />
               </Section>
-              <Section id="from_text" title="Path B — From a text">
+              <Section id="from_text" title="Path B — From a text" open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Section title</label>
                 <input style={input} value={data.from_text?.title || ''} onChange={e => up(['from_text', 'title'], e.target.value)} />
-                <DragList path={['from_text', 'steps']} label="Steps" />
+                <DragList path={['from_text', 'steps']} label="Steps" data={data} up={up} drag={drag} setDrag={setDrag} />
               </Section>
             </>
           )}
@@ -199,16 +203,28 @@ export default function GuideContentEditor() {
           {/* ===== STEP 2 ===== */}
           {tab === 'step2' && (
             <>
-              <Section id="visuals" title="Visuals basic learnings">
+              <Section id="visuals" title="Visuals basic learnings" open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Section title</label>
                 <input style={input} value={data.visuals_learnings?.title || ''} onChange={e => up(['visuals_learnings', 'title'], e.target.value)} />
                 <label style={fieldLabel}>Charm timing</label>
                 <textarea style={textarea} value={data.visuals_learnings?.charm_timing || ''} onChange={e => up(['visuals_learnings', 'charm_timing'], e.target.value)} />
                 <label style={fieldLabel}>Filming</label>
                 <textarea style={textarea} value={data.visuals_learnings?.filming || ''} onChange={e => up(['visuals_learnings', 'filming'], e.target.value)} />
+
+                <h3 style={subHead}>How to record (video + checklist)</h3>
+                <label style={fieldLabel}>Record video title</label>
+                <input style={input} value={data.visuals_learnings?.record_title || ''} placeholder="How to record - Step By Step:" onChange={e => up(['visuals_learnings', 'record_title'], e.target.value)} />
+                <label style={fieldLabel}>Record video URL (YouTube or Loom)</label>
+                <input style={input} value={data.visuals_learnings?.record_video_url || ''} onChange={e => up(['visuals_learnings', 'record_video_url'], e.target.value)} />
+                <label style={fieldLabel}>Checklist intro text</label>
+                <input style={input} value={data.visuals_learnings?.checklist_intro || ''} placeholder="Check out the How to Record Checklist here:" onChange={e => up(['visuals_learnings', 'checklist_intro'], e.target.value)} />
+                <label style={fieldLabel}>Checklist button label</label>
+                <input style={input} value={data.visuals_learnings?.checklist_label || ''} placeholder="How to Record Checklist →" onChange={e => up(['visuals_learnings', 'checklist_label'], e.target.value)} />
+                <label style={fieldLabel}>Checklist link (Notion, etc.)</label>
+                <input style={input} value={data.visuals_learnings?.checklist_url || ''} onChange={e => up(['visuals_learnings', 'checklist_url'], e.target.value)} />
               </Section>
 
-              <Section id="which_text" title="Which text to use — Path A (viral video)" defaultOpen={false}>
+              <Section id="which_text" title="Which text to use — Path A (viral video)" defaultOpen={false} open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Section title</label>
                 <input style={input} value={wt.title || ''} onChange={e => up(['which_text', 'title'], e.target.value)} />
                 <label style={fieldLabel}>Core rule</label>
@@ -219,13 +235,13 @@ export default function GuideContentEditor() {
                 <input style={input} value={wt.type1?.heading || ''} onChange={e => up(['which_text', 'type1', 'heading'], e.target.value)} />
                 <label style={fieldLabel}>Intro</label>
                 <textarea style={textarea} value={wt.type1?.intro || ''} onChange={e => up(['which_text', 'type1', 'intro'], e.target.value)} />
-                <DragList path={['which_text', 'type1', 'examples']} label="Examples" />
+                <DragList path={['which_text', 'type1', 'examples']} label="Examples" data={data} up={up} drag={drag} setDrag={setDrag} />
 
                 <h3 style={subHead}>Type 2 — Aspirational headlines</h3>
                 <label style={fieldLabel}>Heading</label>
                 <input style={input} value={wt.type2?.heading || ''} onChange={e => up(['which_text', 'type2', 'heading'], e.target.value)} />
-                <DragList path={['which_text', 'type2', 'worked']} label="What worked ✅" />
-                <DragList path={['which_text', 'type2', 'didnt']} label="What didn't ❌" />
+                <DragList path={['which_text', 'type2', 'worked']} label="What worked ✅" data={data} up={up} drag={drag} setDrag={setDrag} />
+                <DragList path={['which_text', 'type2', 'didnt']} label="What didn't ❌" data={data} up={up} drag={drag} setDrag={setDrag} />
                 <label style={fieldLabel}>Why (explanation)</label>
                 <textarea style={{ ...textarea, minHeight: 120 }} value={wt.type2?.why || ''} onChange={e => up(['which_text', 'type2', 'why'], e.target.value)} />
 
@@ -246,15 +262,15 @@ export default function GuideContentEditor() {
                 <h3 style={subHead}>Ready-to-use texts</h3>
                 <label style={fieldLabel}>Intro</label>
                 <textarea style={textarea} value={wt.ready_intro || ''} onChange={e => up(['which_text', 'ready_intro'], e.target.value)} />
-                <DragList path={['which_text', 'headlines']} label="Headlines" />
+                <DragList path={['which_text', 'headlines']} label="Headlines" data={data} up={up} drag={drag} setDrag={setDrag} />
               </Section>
 
-              <Section id="which_text_b" title="Which text to use — Path B (from a text)" defaultOpen={false}>
+              <Section id="which_text_b" title="Which text to use — Path B (from a text)" defaultOpen={false} open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Section title</label>
                 <input style={input} value={wtb.title || ''} onChange={e => up(['which_text_b', 'title'], e.target.value)} />
                 <label style={fieldLabel}>Intro</label>
                 <textarea style={textarea} value={wtb.intro || ''} onChange={e => up(['which_text_b', 'intro'], e.target.value)} />
-                <DragList path={['which_text_b', 'headlines']} label="Headlines" />
+                <DragList path={['which_text_b', 'headlines']} label="Headlines" data={data} up={up} drag={drag} setDrag={setDrag} />
               </Section>
             </>
           )}
@@ -262,11 +278,17 @@ export default function GuideContentEditor() {
           {/* ===== STEP 3 ===== */}
           {tab === 'step3' && (
             <>
-              <Section id="editing" title="Editing tutorial">
+              <Section id="editing" title="Editing tutorial" open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Tutorial URL</label>
                 <input style={input} value={ed.tutorial_url || ''} onChange={e => up(['editing', 'tutorial_url'], e.target.value)} />
               </Section>
-              <Section id="text_learnings" title="Text basic learnings">
+              <Section id="how_to_edit" title="How to Edit Step-by-Step" open={open} setOpen={setOpen}>
+                <label style={fieldLabel}>Section title</label>
+                <input style={input} value={ed.how_to_edit?.title || ''} placeholder="How to Edit Step-by-Step" onChange={e => up(['editing', 'how_to_edit', 'title'], e.target.value)} />
+                <label style={fieldLabel}>Video URL (YouTube or Loom)</label>
+                <input style={input} value={ed.how_to_edit?.video_url || ''} onChange={e => up(['editing', 'how_to_edit', 'video_url'], e.target.value)} />
+              </Section>
+              <Section id="text_learnings" title="Text basic learnings" open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Font</label>
                 <input style={input} value={tl.font || ''} onChange={e => up(['editing', 'text_learnings', 'font'], e.target.value)} />
                 <label style={fieldLabel}>Position</label>
@@ -276,7 +298,7 @@ export default function GuideContentEditor() {
                 <label style={fieldLabel}>Second text</label>
                 <input style={input} value={tl.second_text || ''} onChange={e => up(['editing', 'text_learnings', 'second_text'], e.target.value)} />
               </Section>
-              <Section id="sounds" title="Sounds">
+              <Section id="sounds" title="Sounds" open={open} setOpen={setOpen}>
                 {(ed.sounds || []).map((s, i) => (
                   <div key={i} style={{ border: '1px solid #EFEADF', borderRadius: 8, padding: 12, marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -343,6 +365,19 @@ function Preview({ data, tab, previewPath, setPreviewPath }) {
             <PCard title={v.title || 'Visuals Basic learnings'} icon="✨">
               {v.charm_timing && <PRule emoji="⏱">{v.charm_timing}</PRule>}
               {v.filming && <PRule emoji="🎥">{v.filming}</PRule>}
+              {v.record_video_url && (
+                <div style={{ background: '#257232', color: '#fff', borderRadius: 8, padding: 8, fontSize: 11, fontWeight: 700, textAlign: 'center', marginTop: 8 }}>
+                  ▶ {v.record_title || 'How to record - Step By Step:'}
+                </div>
+              )}
+              {v.checklist_url && (
+                <>
+                  {v.checklist_intro && <PBody>{v.checklist_intro}</PBody>}
+                  <div style={{ border: '1px solid #257232', color: '#257232', borderRadius: 8, padding: '6px 8px', fontSize: 11, fontWeight: 600, textAlign: 'center', marginTop: 6 }}>
+                    {v.checklist_label || 'How to Record Checklist →'}
+                  </div>
+                </>
+              )}
             </PCard>
             <PCard title={w.title || 'Which text to use'} icon="📝">
               {previewPath === 'from_video' ? (
@@ -377,6 +412,13 @@ function Preview({ data, tab, previewPath, setPreviewPath }) {
               <div style={{ background: '#257232', color: '#fff', borderRadius: 12, padding: 12, fontSize: 12, fontWeight: 700, textAlign: 'center', marginBottom: 10 }}>
                 ▶ Watch the editing tutorial first
               </div>
+            )}
+            {ed.how_to_edit?.video_url && (
+              <PCard title={ed.how_to_edit.title || 'How to Edit Step-by-Step'} icon="🎬">
+                <div style={{ background: '#257232', color: '#fff', borderRadius: 8, padding: 8, fontSize: 11, fontWeight: 700, textAlign: 'center', marginTop: 4 }}>
+                  ▶ Watch video
+                </div>
+              </PCard>
             )}
             <PCard title={tl.title || 'Text basic learnings'} icon="🔤">
               {tl.font && <PRule emoji="🔤"><b>Font:</b> {tl.font}</PRule>}
@@ -457,7 +499,12 @@ function seed() {
   return {
     from_video: { title: 'How to be creative from any viral video', steps: [] },
     from_text: { title: 'How to be creative from any text', steps: [] },
-    visuals_learnings: { title: 'Visuals Basic learnings', charm_timing: '', filming: '' },
+    visuals_learnings: {
+      title: 'Visuals Basic learnings', charm_timing: '', filming: '',
+      record_title: 'How to record - Step By Step:', record_video_url: '',
+      checklist_intro: 'Check out the How to Record Checklist here:',
+      checklist_label: 'How to Record Checklist →', checklist_url: '',
+    },
     which_text: {
       title: 'Which text to use', core_rule: '',
       type1: { heading: 'Type 1 - Angle headlines', intro: '', examples: [] },
@@ -469,6 +516,7 @@ function seed() {
     which_text_b: { title: 'Which text to use', intro: 'Pick any of these texts:', headlines: [] },
     editing: {
       tutorial_url: '',
+      how_to_edit: { title: 'How to Edit Step-by-Step', video_url: '' },
       text_learnings: { title: 'Text basic learnings', font: '', position: '', size: '', second_text: '' },
       sounds: [],
     },

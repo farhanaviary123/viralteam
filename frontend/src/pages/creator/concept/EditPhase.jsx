@@ -218,7 +218,7 @@ export default function EditPhase() {
                     style={{ marginTop: 6 }}
                     onClick={() => openLink(v.song.tiktok_link)}
                   >
-                    TikTok Link →
+                    IG/TikTok Link →
                   </button>
                 )}
               </div>

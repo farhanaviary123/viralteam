@@ -6,9 +6,20 @@ const { authenticate } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Helper: SELECT user with optional playbook_link. Falls back if column not
-// migrated yet (pre-v19 databases throw 42703 'undefined_column').
+// Helper: SELECT user with optional playbook_link / drive_link. Falls back if
+// columns aren't migrated yet (pre-v19/v23 databases throw 42703
+// 'undefined_column'). Two-step fallback: try both link columns, then neither.
 async function selectUser(id) {
+  try {
+    const { rows } = await db.query(
+      'SELECT id, email, name, role, playbook_link, drive_link FROM users WHERE id=$1',
+      [id]
+    );
+    return rows[0] || null;
+  } catch (err) {
+    if (err.code !== '42703') throw err;
+  }
+  // drive_link (v23) missing — retry with just playbook_link (v19).
   try {
     const { rows } = await db.query(
       'SELECT id, email, name, role, playbook_link FROM users WHERE id=$1',
@@ -16,15 +27,14 @@ async function selectUser(id) {
     );
     return rows[0] || null;
   } catch (err) {
-    if (err.code === '42703') {
-      const { rows } = await db.query(
-        'SELECT id, email, name, role FROM users WHERE id=$1',
-        [id]
-      );
-      return rows[0] || null;
-    }
-    throw err;
+    if (err.code !== '42703') throw err;
   }
+  // Neither link column exists (pre-v19).
+  const { rows } = await db.query(
+    'SELECT id, email, name, role FROM users WHERE id=$1',
+    [id]
+  );
+  return rows[0] || null;
 }
 
 router.post('/register', async (req, res) => {

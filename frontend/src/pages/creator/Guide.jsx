@@ -43,6 +43,47 @@ function NumList({ items = [] }) {
   );
 }
 
+// Convert a Loom or YouTube URL into its embeddable /embed/ form so the video
+// plays inline. Handles Loom share/embed links and YouTube watch/youtu.be/
+// shorts/embed links (with or without query params). Returns null if the URL
+// isn't a recognised video host, so the caller can fall back to a plain link.
+function videoEmbedUrl(url) {
+  if (!url) return null;
+  const s = String(url);
+  const loom = s.match(/loom\.com\/(?:share|embed)\/([a-f0-9]+)/i);
+  if (loom) return `https://www.loom.com/embed/${loom[1]}`;
+  const yt = s.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  return null;
+}
+
+// Embedded video player (16:9 responsive) for Loom or YouTube. Falls back to an
+// external link for unrecognised URLs so the video still works.
+function VideoEmbed({ url, label }) {
+  const embed = videoEmbedUrl(url);
+  if (!embed) {
+    return (
+      <a className={styles.linkBtn} href={url} target="_blank" rel="noreferrer">
+        {label ? `${label} →` : 'Watch the video →'}
+      </a>
+    );
+  }
+  return (
+    <div className={styles.loomWrap}>
+      {label && <p className={styles.subHeading}>{label}</p>}
+      <div className={styles.loomFrame}>
+        <iframe
+          src={embed}
+          title={label || 'Video'}
+          frameBorder="0"
+          allowFullScreen
+          allow="autoplay; fullscreen; picture-in-picture"
+        />
+      </div>
+    </div>
+  );
+}
+
 function Rule({ emoji, children }) {
   return (
     <div className={styles.ruleRow}>
@@ -101,8 +142,6 @@ export default function Guide() {
   const [conceptId, setConceptId] = useState(id || null);
   const [creating, setCreating] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
-  const [files, setFiles] = useState([]); // footage selected in the Finish modal
-  const [uploading, setUploading] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [loadErr, setLoadErr] = useState(null);
@@ -168,33 +207,21 @@ export default function Guide() {
     }
   }
 
-  // Finish: upload the selected footage to the concept, then complete.
-  async function uploadAndComplete() {
-    if (uploading || finishing) return;
-    if (!files.length) return;
-    setUploading(true);
-    try {
-      if (conceptId) await api.uploadConceptFiles(conceptId, files);
-      await completeConcept();
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setUploading(false);
+  // Open the creator's chosen upload destination (Playbook or Drive) in a new
+  // tab. Links are set per-creator by the strategist; warn if missing.
+  function openUploadTarget(url, label) {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      alert(`No ${label} link assigned yet. Ask your strategist to set one.`);
     }
   }
 
-  // Finish later: upload anything already selected, but keep the concept in
-  // pending_upload so the creator can come back and add the rest. Go home.
-  async function finishLater() {
-    if (uploading || finishing) return;
-    setUploading(true);
-    try {
-      if (files.length && conceptId) await api.uploadConceptFiles(conceptId, files);
-      navigate('/creator');
-    } catch (err) {
-      alert(err.message);
-      setUploading(false);
-    }
+  // Finish later: keep the concept in pending_upload so the creator can come
+  // back. Go home.
+  function finishLater() {
+    if (finishing) return;
+    navigate('/creator');
   }
 
   if (loadErr) return <div className={styles.page}><p style={{ padding: 24 }}>{loadErr}</p></div>;
@@ -238,6 +265,12 @@ export default function Guide() {
               <p className={styles.pathDesc}>→ Start from a proven text</p>
             </button>
           </div>
+
+          {/* Headline explanation video — embedded so it plays inline. Link is
+              set from the admin guide content (editing.tutorial_url). */}
+          {c.editing?.tutorial_url && (
+            <VideoEmbed url={c.editing.tutorial_url} label={c.which_text?.loom_label} />
+          )}
         </>
       )}
 
@@ -270,6 +303,30 @@ export default function Guide() {
               )}
               {c.visuals_learnings.filming && (
                 <Rule emoji="🎥">{c.visuals_learnings.filming}</Rule>
+              )}
+
+              {/* How to record — embedded video + checklist button (shows on
+                  both paths since visuals learnings is path-agnostic). */}
+              {c.visuals_learnings.record_video_url && (
+                <VideoEmbed
+                  url={c.visuals_learnings.record_video_url}
+                  label={c.visuals_learnings.record_title || 'How to record - Step By Step:'}
+                />
+              )}
+              {c.visuals_learnings.checklist_url && (
+                <>
+                  {c.visuals_learnings.checklist_intro && (
+                    <p className={styles.bodyText}>{c.visuals_learnings.checklist_intro}</p>
+                  )}
+                  <a
+                    className={styles.tutorialBtn}
+                    href={c.visuals_learnings.checklist_url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
+                  </a>
+                </>
               )}
             </Accordion>
           )}
@@ -328,12 +385,6 @@ export default function Guide() {
                   </>
                 )}
 
-                {/* Loom explainer */}
-                {w.loom_link && (
-                  <a className={styles.linkBtn} href={w.loom_link} target="_blank" rel="noreferrer">
-                    {w.loom_label ? `${w.loom_label} →` : 'Watch the explainer →'}
-                  </a>
-                )}
 
                 {/* How to write a new text */}
                 {w.how_to && (
@@ -370,10 +421,12 @@ export default function Guide() {
           <h2 className={styles.stepTitle}>Editing</h2>
           <p className={styles.stepSub}>Follow these rules when you edit your video.</p>
 
-          {c.editing?.tutorial_url && (
-            <a className={styles.tutorialBtn} href={c.editing.tutorial_url} target="_blank" rel="noreferrer">
-              ▶ Watch the step-by-step editing tutorial first
-            </a>
+          {/* How to Edit Step-by-Step — new section above Text basic learnings,
+              embedded video. */}
+          {c.editing?.how_to_edit?.video_url && (
+            <Accordion icon="🎬" title={c.editing.how_to_edit.title || 'How to Edit Step-by-Step'} defaultOpen>
+              <VideoEmbed url={c.editing.how_to_edit.video_url} />
+            </Accordion>
           )}
 
           {/* Text basic learnings */}
@@ -402,7 +455,7 @@ export default function Guide() {
                   <p className={styles.soundLabel}>{s.name || `Trending sound ${i + 1}`}</p>
                   <div className={styles.soundBtns}>
                     {s.tiktok_link && (
-                      <a className={styles.soundBtn} href={s.tiktok_link} target="_blank" rel="noreferrer">▶ TikTok</a>
+                      <a className={styles.soundBtn} href={s.tiktok_link} target="_blank" rel="noreferrer">IG/TikTok Link →</a>
                     )}
                     {s.link && (
                       <a className={styles.soundBtn} href={s.link} target="_blank" rel="noreferrer">Sound →</a>
@@ -461,60 +514,46 @@ export default function Guide() {
         </div>
       )}
 
-      {/* ---- Finish / footage upload modal ---- */}
+      {/* ---- Finish / footage upload modal ----
+          Creators pick where to upload their footage: Playbook or Drive. Both
+          links are set per-creator by the strategist. Opening a link doesn't
+          complete the concept — the creator confirms with "I've uploaded". */}
       {showFinish && (
         <div
           className={styles.modalOverlay}
-          onClick={(e) => { if (e.target === e.currentTarget && !uploading) setShowFinish(false); }}
+          onClick={(e) => { if (e.target === e.currentTarget && !finishing) setShowFinish(false); }}
         >
           <div className={styles.modalCard}>
             <h3 className={styles.modalTitle}>Upload your footage</h3>
-            <p className={styles.modalSub}>Add all the raw clips and edited videos you just made. We'll take it from here.</p>
-
-            <label className={styles.uploadDrop}>
-              <input
-                type="file"
-                multiple
-                accept="video/*,image/*"
-                style={{ display: 'none' }}
-                onChange={(e) => setFiles(prev => [...prev, ...Array.from(e.target.files || [])])}
-              />
-              <span className={styles.uploadDropIcon}>⬆️</span>
-              <span className={styles.uploadDropText}>Tap to choose files</span>
-              <span className={styles.uploadDropHint}>Videos or images · up to 50 MB each</span>
-            </label>
-
-            {files.length > 0 && (
-              <div className={styles.uploadList}>
-                {files.map((f, i) => (
-                  <div key={i} className={styles.uploadItem}>
-                    <span className={styles.uploadItemName}>{f.name}</span>
-                    <span className={styles.uploadItemSize}>{(f.size / 1024 / 1024).toFixed(1)} MB</span>
-                    {!uploading && (
-                      <button
-                        type="button"
-                        className={styles.uploadItemRemove}
-                        onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}
-                        aria-label="Remove"
-                      >✕</button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <p className={styles.modalSub}>Add all the raw clips and edited videos you just made, then come back and finish.</p>
 
             <button
               type="button"
               className={styles.modalPrimary}
-              disabled={!files.length || uploading}
-              onClick={uploadAndComplete}
+              onClick={() => openUploadTarget(user?.playbook_link, 'Playbook')}
             >
-              {uploading ? 'Uploading…' : `Upload${files.length ? ` ${files.length} file${files.length > 1 ? 's' : ''}` : ''} & Finish`}
+              Upload on Playbook →
+            </button>
+            <button
+              type="button"
+              className={styles.modalPrimary}
+              onClick={() => openUploadTarget(user?.drive_link, 'Drive')}
+            >
+              Upload on Drive →
+            </button>
+
+            <button
+              type="button"
+              className={styles.modalSecondary}
+              disabled={finishing}
+              onClick={completeConcept}
+            >
+              {finishing ? 'Finishing…' : "I've uploaded — finish"}
             </button>
             <button
               type="button"
               className={styles.modalSecondary}
-              disabled={uploading}
+              disabled={finishing}
               onClick={finishLater}
             >
               Finish later

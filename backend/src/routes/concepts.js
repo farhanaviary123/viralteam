@@ -157,23 +157,33 @@ async function fetchConcept(id) {
     WHERE ccl.concept_id = $1 ORDER BY ccl.variation_number ASC
   `, [id]);
 
-  // Pull songs incl. tiktok_link if the column exists (v19+). Fallback for
-  // pre-v19 databases keeps the rest of the fetch working.
+  // Pull songs incl. tiktok_link (v19+) and platform (v23+) if the columns
+  // exist. Graceful fallbacks keep the rest of the fetch working on older DBs.
   let songs;
   try {
     songs = await db.query(`
-      SELECT cs.variation_number, s.id, s.name, s.link, s.tiktok_link
+      SELECT cs.variation_number, s.id, s.name, s.link, s.tiktok_link, s.platform
       FROM concept_songs cs JOIN songs s ON s.id = cs.song_id
       WHERE cs.concept_id = $1 ORDER BY cs.variation_number ASC
     `, [id]);
   } catch (err) {
     if (err.code !== '42703') throw err;
-    console.warn('[concepts.fetchConcept] songs.tiktok_link missing — run migrate:v19');
-    songs = await db.query(`
-      SELECT cs.variation_number, s.id, s.name, s.link
-      FROM concept_songs cs JOIN songs s ON s.id = cs.song_id
-      WHERE cs.concept_id = $1 ORDER BY cs.variation_number ASC
-    `, [id]);
+    console.warn('[concepts.fetchConcept] songs.platform missing — run migrate:v23');
+    try {
+      songs = await db.query(`
+        SELECT cs.variation_number, s.id, s.name, s.link, s.tiktok_link
+        FROM concept_songs cs JOIN songs s ON s.id = cs.song_id
+        WHERE cs.concept_id = $1 ORDER BY cs.variation_number ASC
+      `, [id]);
+    } catch (err2) {
+      if (err2.code !== '42703') throw err2;
+      console.warn('[concepts.fetchConcept] songs.tiktok_link missing — run migrate:v19');
+      songs = await db.query(`
+        SELECT cs.variation_number, s.id, s.name, s.link
+        FROM concept_songs cs JOIN songs s ON s.id = cs.song_id
+        WHERE cs.concept_id = $1 ORDER BY cs.variation_number ASC
+      `, [id]);
+    }
   }
 
   const vCount = concept.variation_count || arrangementsFull.length || 5;
@@ -186,7 +196,7 @@ async function fetchConcept(id) {
     variations.push({
       variation_number: v,
       copy_line: cv ? { id: cv.id, copy_text: cv.copy_text, copy_type: cv.copy_type } : null,
-      song: sv ? { id: sv.id, name: sv.name, link: sv.link, tiktok_link: sv.tiktok_link || null } : null,
+      song: sv ? { id: sv.id, name: sv.name, link: sv.link, tiktok_link: sv.tiktok_link || null, platform: sv.platform || 'tiktok' } : null,
       arrangement: arr ? { clip_structure_id: arr.clip_structure_id, name: arr.name, items: arr.items } : null,
     });
   }

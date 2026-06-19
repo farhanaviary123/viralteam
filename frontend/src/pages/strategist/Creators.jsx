@@ -3,20 +3,21 @@ import { api } from '../../api';
 import StrategistLayout from './StrategistLayout';
 import styles from './Strategist.module.css';
 
-// Inline editor for a single creator's Playbook link. Tracks its own dirty
-// state so unrelated rows aren't re-rendered on each keystroke.
-function PlaybookCell({ creator, onSaved }) {
-  const [value, setValue] = useState(creator.playbook_link || '');
+// Inline editor for a single creator link field (playbook_link | drive_link).
+// Tracks its own dirty state so unrelated rows aren't re-rendered on each
+// keystroke. `field` selects which column it edits.
+function LinkCell({ creator, field, onSaved }) {
+  const [value, setValue] = useState(creator[field] || '');
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
-  const dirty = (value || '') !== (creator.playbook_link || '');
+  const dirty = (value || '') !== (creator[field] || '');
 
   async function save() {
     if (saving || !dirty) return;
     setSaving(true);
     try {
       const updated = await api.updateCreator(creator.id, {
-        playbook_link: value.trim() || null,
+        [field]: value.trim() || null,
       });
       setSavedAt(Date.now());
       onSaved(updated);
@@ -58,7 +59,9 @@ export default function Creators() {
 
   function onSaved(updated) {
     setCreators(prev => prev.map(c =>
-      c.id === updated.id ? { ...c, playbook_link: updated.playbook_link } : c
+      c.id === updated.id
+        ? { ...c, playbook_link: updated.playbook_link, drive_link: updated.drive_link }
+        : c
     ));
   }
 
@@ -76,6 +79,7 @@ export default function Creators() {
               <th>Name</th>
               <th>Email</th>
               <th>Playbook link</th>
+              <th>Drive link</th>
               <th>Concepts Built</th>
               <th>Shot</th>
               <th>Edited</th>
@@ -87,7 +91,8 @@ export default function Creators() {
               <tr key={c.id}>
                 <td>{c.name}</td>
                 <td style={{ color: 'var(--text-secondary)' }}>{c.email}</td>
-                <td><PlaybookCell creator={c} onSaved={onSaved} /></td>
+                <td><LinkCell creator={c} field="playbook_link" onSaved={onSaved} /></td>
+                <td><LinkCell creator={c} field="drive_link" onSaved={onSaved} /></td>
                 <td>{c.concepts_built}</td>
                 <td>{c.concepts_shot}</td>
                 <td>{c.concepts_edited}</td>
@@ -95,7 +100,7 @@ export default function Creators() {
               </tr>
             ))}
             {creators.length === 0 && (
-              <tr><td colSpan={7} style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No creators yet.</td></tr>
+              <tr><td colSpan={8} style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No creators yet.</td></tr>
             )}
           </tbody>
         </table>

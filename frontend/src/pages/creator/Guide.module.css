@@ -403,6 +403,10 @@
   text-decoration: none;
   cursor: pointer;
 }
+/* Stack of upload buttons: space them out (no gap before the first). */
+.modalPrimary + .modalPrimary {
+  margin-top: 10px;
+}
 .modalSecondary {
   background: none;
   border: none;
@@ -411,6 +415,40 @@
   font-weight: 600;
   padding: 12px 8px 0;
   cursor: pointer;
+}
+
+/* ---- Embedded Loom explainer (16:9 responsive) ---- */
+.loomWrap {
+  margin: 32px 0 24px;
+}
+.loomWrap .subHeading {
+  margin-bottom: 12px;
+}
+.loomFrame {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 */
+  border-radius: var(--radius-btn);
+  overflow: hidden;
+  background: #000;
+}
+/* On wider screens the page is capped at 480px; let the video break out of
+   that column so it plays at a larger, more watchable size. */
+@media (min-width: 560px) {
+  .loomFrame {
+    width: 90vw;
+    max-width: 860px;
+    /* center the wider frame relative to the narrow column */
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+.loomFrame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 /* ---- "See all headlines" button + popup ---- */
