@@ -267,9 +267,9 @@ export default function Guide() {
           </div>
 
           {/* Headline explanation video — embedded so it plays inline. Link is
-              set from the admin guide content (editing.tutorial_url). */}
+              set from the admin 🎬 Videos tab (editing.tutorial_url). */}
           {c.editing?.tutorial_url && (
-            <VideoEmbed url={c.editing.tutorial_url} label={c.which_text?.loom_label} />
+            <VideoEmbed url={c.editing.tutorial_url} />
           )}
         </>
       )}

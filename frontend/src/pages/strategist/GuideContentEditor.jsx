@@ -33,9 +33,31 @@ function setPath(obj, path, value) {
 }
 
 const TABS = [
+  { key: 'videos', label: '🎬 Videos' },
   { key: 'step1', label: 'Step 1 — Paths' },
   { key: 'step2', label: 'Step 2 — Learnings & text' },
   { key: 'step3', label: 'Step 3 — Editing' },
+];
+
+// The 3 video slots shown in the creator app. One place to manage every embed.
+// `path` points at the existing guide-content key so the creator render is
+// unchanged — this tab just centralises them.
+const VIDEO_SLOTS = [
+  {
+    path: ['editing', 'tutorial_url'],
+    title: 'Step 1 — Headline explanation video',
+    help: 'Shows on the first screen ("How creative do you feel today?").',
+  },
+  {
+    path: ['visuals_learnings', 'record_video_url'],
+    title: 'Step 2 — How to record video',
+    help: 'Shows inside "Visuals basic learnings" (both paths).',
+  },
+  {
+    path: ['editing', 'how_to_edit', 'video_url'],
+    title: 'Step 3 — How to Edit Step-by-Step video',
+    help: 'Shows in the editing step, above "Text basic learnings".',
+  },
 ];
 
 /* ---- collapsible section card ----
@@ -110,7 +132,7 @@ export default function GuideContentEditor() {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [error, setError] = useState(null);
-  const [tab, setTab] = useState('step2');
+  const [tab, setTab] = useState('videos');
   const [open, setOpen] = useState({}); // collapsed-section state, keyed by section id
   const [previewPath, setPreviewPath] = useState('from_video');
   const [drag, setDrag] = useState(null); // { key, index } during a list drag
@@ -184,6 +206,30 @@ export default function GuideContentEditor() {
             ))}
           </div>
 
+          {/* ===== VIDEOS ===== one input per slot, nothing else ===== */}
+          {tab === 'videos' && (
+            <>
+              <p style={{ fontSize: 13, color: '#857D70', marginTop: 0, marginBottom: 16 }}>
+                Paste a YouTube or Loom link for each of the 3 videos. Leave a box empty to hide that video. Click Save changes when done.
+              </p>
+              {VIDEO_SLOTS.map(slot => {
+                const val = slot.path.reduce((o, k) => o?.[k], data) || '';
+                return (
+                  <div key={slot.path.join('.')} style={{ background: '#fff', border: '1px solid #E6E0D4', borderRadius: 12, marginBottom: 16, padding: '16px 18px' }}>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: '#1F1B14', margin: '0 0 2px' }}>{slot.title}</p>
+                    <p style={{ fontSize: 12, color: '#857D70', margin: '0 0 10px' }}>{slot.help}</p>
+                    <input
+                      style={input}
+                      value={val}
+                      placeholder="https://www.youtube.com/watch?v=…  or  https://www.loom.com/share/…"
+                      onChange={e => up(slot.path, e.target.value)}
+                    />
+                  </div>
+                );
+              })}
+            </>
+          )}
+
           {/* ===== STEP 1 ===== */}
           {tab === 'step1' && (
             <>
@@ -211,11 +257,10 @@ export default function GuideContentEditor() {
                 <label style={fieldLabel}>Filming</label>
                 <textarea style={textarea} value={data.visuals_learnings?.filming || ''} onChange={e => up(['visuals_learnings', 'filming'], e.target.value)} />
 
-                <h3 style={subHead}>How to record (video + checklist)</h3>
+                <h3 style={subHead}>How to record (checklist)</h3>
+                <p style={{ fontSize: 12, color: '#857D70', margin: '0 0 8px' }}>The video for this section is set in the 🎬 Videos tab.</p>
                 <label style={fieldLabel}>Record video title</label>
                 <input style={input} value={data.visuals_learnings?.record_title || ''} placeholder="How to record - Step By Step:" onChange={e => up(['visuals_learnings', 'record_title'], e.target.value)} />
-                <label style={fieldLabel}>Record video URL (YouTube or Loom)</label>
-                <input style={input} value={data.visuals_learnings?.record_video_url || ''} onChange={e => up(['visuals_learnings', 'record_video_url'], e.target.value)} />
                 <label style={fieldLabel}>Checklist intro text</label>
                 <input style={input} value={data.visuals_learnings?.checklist_intro || ''} placeholder="Check out the How to Record Checklist here:" onChange={e => up(['visuals_learnings', 'checklist_intro'], e.target.value)} />
                 <label style={fieldLabel}>Checklist button label</label>
@@ -245,11 +290,6 @@ export default function GuideContentEditor() {
                 <label style={fieldLabel}>Why (explanation)</label>
                 <textarea style={{ ...textarea, minHeight: 120 }} value={wt.type2?.why || ''} onChange={e => up(['which_text', 'type2', 'why'], e.target.value)} />
 
-                <label style={fieldLabel}>Loom label</label>
-                <input style={input} value={wt.loom_label || ''} onChange={e => up(['which_text', 'loom_label'], e.target.value)} />
-                <label style={fieldLabel}>Loom / explainer link</label>
-                <input style={input} value={wt.loom_link || ''} onChange={e => up(['which_text', 'loom_link'], e.target.value)} />
-
                 <h3 style={subHead}>How to write a new text</h3>
                 <label style={fieldLabel}>Heading</label>
                 <input style={input} value={wt.how_to?.heading || ''} onChange={e => up(['which_text', 'how_to', 'heading'], e.target.value)} />
@@ -278,15 +318,10 @@ export default function GuideContentEditor() {
           {/* ===== STEP 3 ===== */}
           {tab === 'step3' && (
             <>
-              <Section id="editing" title="Editing tutorial" open={open} setOpen={setOpen}>
-                <label style={fieldLabel}>Tutorial URL</label>
-                <input style={input} value={ed.tutorial_url || ''} onChange={e => up(['editing', 'tutorial_url'], e.target.value)} />
-              </Section>
               <Section id="how_to_edit" title="How to Edit Step-by-Step" open={open} setOpen={setOpen}>
+                <p style={{ fontSize: 12, color: '#857D70', margin: '0 0 8px' }}>The video for this section is set in the 🎬 Videos tab.</p>
                 <label style={fieldLabel}>Section title</label>
                 <input style={input} value={ed.how_to_edit?.title || ''} placeholder="How to Edit Step-by-Step" onChange={e => up(['editing', 'how_to_edit', 'title'], e.target.value)} />
-                <label style={fieldLabel}>Video URL (YouTube or Loom)</label>
-                <input style={input} value={ed.how_to_edit?.video_url || ''} onChange={e => up(['editing', 'how_to_edit', 'video_url'], e.target.value)} />
               </Section>
               <Section id="text_learnings" title="Text basic learnings" open={open} setOpen={setOpen}>
                 <label style={fieldLabel}>Font</label>
@@ -509,7 +544,6 @@ function seed() {
       title: 'Which text to use', core_rule: '',
       type1: { heading: 'Type 1 - Angle headlines', intro: '', examples: [] },
       type2: { heading: 'Type 2 - Aspirational headlines', worked: [], didnt: [], why: '' },
-      loom_label: '', loom_link: '',
       how_to: { heading: 'How to write a new text:', body: '' },
       bonus_note: '', ready_intro: '', headlines: [],
     },
