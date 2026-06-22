@@ -45,8 +45,8 @@ const TABS = [
 const VIDEO_SLOTS = [
   {
     path: ['editing', 'tutorial_url'],
-    title: 'Step 1 — Headline explanation video',
-    help: 'Shows on the first screen ("How creative do you feel today?").',
+    title: 'Step 2 — Headline explanation video',
+    help: 'Shows in "Which text to use" (Path A), between the Type 2 headlines and "How to write a new text".',
   },
   {
     path: ['visuals_learnings', 'record_video_url'],

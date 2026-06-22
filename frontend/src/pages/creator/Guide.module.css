@@ -417,12 +417,13 @@
   cursor: pointer;
 }
 
-/* ---- Embedded Loom explainer (16:9 responsive) ---- */
+/* ---- Embedded video (16:9 responsive) ---- */
+/* Fills its container, so it sits cleanly inside accordions / text cards. */
 .loomWrap {
-  margin: 32px 0 24px;
+  margin: 16px 0;
 }
 .loomWrap .subHeading {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .loomFrame {
   position: relative;
@@ -431,17 +432,6 @@
   border-radius: var(--radius-btn);
   overflow: hidden;
   background: #000;
-}
-/* On wider screens the page is capped at 480px; let the video break out of
-   that column so it plays at a larger, more watchable size. */
-@media (min-width: 560px) {
-  .loomFrame {
-    width: 90vw;
-    max-width: 860px;
-    /* center the wider frame relative to the narrow column */
-    margin-left: 50%;
-    transform: translateX(-50%);
-  }
 }
 .loomFrame iframe {
   position: absolute;

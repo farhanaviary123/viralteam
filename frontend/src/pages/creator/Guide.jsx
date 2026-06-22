@@ -278,12 +278,6 @@ export default function Guide() {
               <p className={styles.pathDesc}>→ Start from a proven text</p>
             </button>
           </div>
-
-          {/* Headline explanation video — embedded so it plays inline. Link is
-              set from the admin 🎬 Videos tab (editing.tutorial_url). */}
-          {c.editing?.tutorial_url && (
-            <VideoEmbed url={c.editing.tutorial_url} />
-          )}
         </>
       )}
 
@@ -398,6 +392,12 @@ export default function Guide() {
                   </>
                 )}
 
+                {/* Headline explanation video — Step 1 video, shown here between
+                    the Type 2 headlines and "How to write a new text". Link set
+                    in the admin 🎬 Videos tab (editing.tutorial_url). */}
+                {c.editing?.tutorial_url && (
+                  <VideoEmbed url={c.editing.tutorial_url} />
+                )}
 
                 {/* How to write a new text */}
                 {w.how_to && (
