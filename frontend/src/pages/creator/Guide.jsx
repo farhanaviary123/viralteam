@@ -460,6 +460,14 @@ export default function Guide() {
             </Accordion>
           )}
 
+          {/* Multiple texts instructions — between Text basic learnings and
+              Which sound to use. Admin-editable (editing.multiple_texts). */}
+          {c.editing?.multiple_texts?.body && (
+            <Accordion icon="⏱" title={c.editing.multiple_texts.title || 'Multiple texts instructions'} defaultOpen>
+              <Rule emoji="⏱">{c.editing.multiple_texts.body}</Rule>
+            </Accordion>
+          )}
+
           {/* Which sound to use — pulled from the songs table */}
           {songs.length > 0 && (
             <Accordion icon="🎵" title="Which sound to use">

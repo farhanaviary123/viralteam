@@ -333,6 +333,12 @@ export default function GuideContentEditor() {
                 <label style={fieldLabel}>Second text</label>
                 <input style={input} value={tl.second_text || ''} onChange={e => up(['editing', 'text_learnings', 'second_text'], e.target.value)} />
               </Section>
+              <Section id="multiple_texts" title="Multiple texts instructions" open={open} setOpen={setOpen}>
+                <label style={fieldLabel}>Section title</label>
+                <input style={input} value={ed.multiple_texts?.title || ''} placeholder="Multiple texts instructions" onChange={e => up(['editing', 'multiple_texts', 'title'], e.target.value)} />
+                <label style={fieldLabel}>Body</label>
+                <textarea style={textarea} value={ed.multiple_texts?.body || ''} placeholder="If you're using more than one text in your video, switch text every 3.5 seconds…" onChange={e => up(['editing', 'multiple_texts', 'body'], e.target.value)} />
+              </Section>
               <Section id="sounds" title="Sounds" open={open} setOpen={setOpen}>
                 {(ed.sounds || []).map((s, i) => (
                   <div key={i} style={{ border: '1px solid #EFEADF', borderRadius: 8, padding: 12, marginBottom: 10 }}>
@@ -461,6 +467,11 @@ function Preview({ data, tab, previewPath, setPreviewPath }) {
               {tl.size && <PRule emoji="↔️"><b>Size:</b> {tl.size}</PRule>}
               {tl.second_text && <PRule emoji="⏱"><b>Second text:</b> {tl.second_text}</PRule>}
             </PCard>
+            {ed.multiple_texts?.body && (
+              <PCard title={ed.multiple_texts.title || 'Multiple texts instructions'} icon="⏱">
+                <PRule emoji="⏱">{ed.multiple_texts.body}</PRule>
+              </PCard>
+            )}
             <PCard title="Which sound to use" icon="🎵">
               {(ed.sounds || []).map((s, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #EFEADF', borderRadius: 8, padding: '8px 10px', marginTop: 6 }}>
@@ -552,6 +563,7 @@ function seed() {
       tutorial_url: '',
       how_to_edit: { title: 'How to Edit Step-by-Step', video_url: '' },
       text_learnings: { title: 'Text basic learnings', font: '', position: '', size: '', second_text: '' },
+      multiple_texts: { title: 'Multiple texts instructions', body: '' },
       sounds: [],
     },
   };
