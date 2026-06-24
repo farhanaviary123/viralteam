@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import Badge from '../../components/Badge';
+import AllHeadlinesModal from '../../components/AllHeadlinesModal';
 import styles from './Creator.module.css';
 
 export default function CreatorHome() {
@@ -10,6 +11,7 @@ export default function CreatorHome() {
   const navigate = useNavigate();
   const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAllHeadlines, setShowAllHeadlines] = useState(false);
 
   useEffect(() => {
     api.getConcepts().then(setConcepts).finally(() => setLoading(false));
@@ -45,6 +47,27 @@ export default function CreatorHome() {
 
       <button className={styles.newBtn} onClick={() => navigate('/creator/new')}>
         + New Concept
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setShowAllHeadlines(true)}
+        style={{
+          display: 'block',
+          width: '100%',
+          boxSizing: 'border-box',
+          marginTop: 12,
+          background: 'none',
+          border: '1px solid #EFEADF',
+          color: 'var(--green)',
+          borderRadius: 12,
+          padding: 14,
+          fontSize: 14,
+          fontWeight: 700,
+          cursor: 'pointer',
+        }}
+      >
+        See all headlines
       </button>
 
       {loading ? (
@@ -96,6 +119,8 @@ export default function CreatorHome() {
         <button className={`${styles.navItem} ${styles.navActive}`}>Home</button>
         <button className={styles.navItem} disabled style={{ opacity: 0.4, cursor: 'not-allowed' }}>History</button>
       </nav>
+
+      {showAllHeadlines && <AllHeadlinesModal onClose={() => setShowAllHeadlines(false)} />}
     </div>
   );
 }
