@@ -57,6 +57,7 @@ export default function CreatorHome() {
           width: '100%',
           boxSizing: 'border-box',
           marginTop: 8,
+          marginBottom: 28,
           background: '#E7F3EA',
           border: '1px solid var(--green)',
           color: 'var(--green)',
