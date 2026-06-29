@@ -155,6 +155,7 @@ export default function Guide() {
   const [conceptId, setConceptId] = useState(id || null);
   const [creating, setCreating] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false); // How to Record modal
   const [finishing, setFinishing] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [loadErr, setLoadErr] = useState(null);
@@ -334,14 +335,13 @@ export default function Guide() {
                   {c.visuals_learnings.checklist_intro && (
                     <p className={styles.bodyText}>{c.visuals_learnings.checklist_intro}</p>
                   )}
-                  <a
+                  <button
+                    type="button"
                     className={styles.tutorialBtn}
-                    href={c.visuals_learnings.checklist_url}
-                    target="_blank"
-                    rel="noreferrer"
+                    onClick={() => setShowChecklist(true)}
                   >
                     {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
-                  </a>
+                  </button>
                 </>
               )}
             </Accordion>
@@ -546,6 +546,34 @@ export default function Guide() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---- How to Record checklist modal ----
+          Opens the strategist-set checklist link (Notion etc.) in an in-app
+          iframe instead of a new tab. */}
+      {showChecklist && c.visuals_learnings?.checklist_url && (
+        <div
+          className={styles.checklistOverlay}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowChecklist(false); }}
+        >
+          <div className={styles.checklistCard}>
+            <button
+              type="button"
+              className={styles.checklistClose}
+              aria-label="Close"
+              onClick={() => setShowChecklist(false)}
+            >
+              ✕
+            </button>
+            <iframe
+              className={styles.checklistFrame}
+              src={c.visuals_learnings.checklist_url}
+              title={c.visuals_learnings.checklist_label || 'How to Record Checklist'}
+              frameBorder="0"
+              allowFullScreen
+            />
           </div>
         </div>
       )}

@@ -417,6 +417,49 @@
   cursor: pointer;
 }
 
+/* ---- How to Record checklist modal (full-page iframe) ---- */
+.checklistOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.checklistCard {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  height: 90dvh;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+}
+.checklistFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+.checklistClose {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 /* ---- Embedded video (16:9 responsive) ---- */
 /* Fills its container, so it sits cleanly inside accordions / text cards. */
 .loomWrap {
