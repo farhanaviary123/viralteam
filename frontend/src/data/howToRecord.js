@@ -81,11 +81,7 @@ export const HOW_TO_RECORD =
  },
  {
   "kind": "image",
-  "file": "/how-to-record/media-06.png"
- },
- {
-  "kind": "image",
-  "file": "/how-to-record/media-07.png"
+  "file": "/how-to-record/travel-outdoors.png"
  },
  {
   "kind": "text",
@@ -98,14 +94,6 @@ export const HOW_TO_RECORD =
  {
   "kind": "video",
   "file": "/how-to-record/media-09.mp4"
- },
- {
-  "kind": "todo",
-  "text": "If using a dark background, it must be completely dark like these, with perfectly bright lighting: 👉"
- },
- {
-  "kind": "image",
-  "file": "/how-to-record/media-10.png"
  },
  {
   "kind": "header",
