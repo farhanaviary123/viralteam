@@ -1,10 +1,55 @@
 const express = require('express');
+const multer = require('multer');
 const db = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { setVibes, attachVibes } = require('../lib/vibes');
 
 const router = express.Router();
+
+// In-DB audio upload (20 MB cap — plenty for an MP3 clip).
+const audioUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024 },
+});
+
+// GET /api/songs/audio/:id — stream stored audio bytes. Public (no auth):
+// the browser <audio> tag and direct download links can't send a Bearer
+// header. Registered before the authenticate gate below.
+router.get('/audio/:id', async (req, res) => {
+  let rows;
+  try {
+    ({ rows } = await db.query('SELECT data, mime FROM song_audio WHERE id=$1', [req.params.id]));
+  } catch (err) {
+    if (err.code === '42P01') return res.status(404).end();
+    throw err;
+  }
+  const audio = rows[0];
+  if (!audio) return res.status(404).json({ error: 'Not found' });
+  res.setHeader('Content-Type', audio.mime || 'audio/mpeg');
+  res.setHeader('Content-Length', audio.data.length);
+  res.send(audio.data);
+});
+
 router.use(authenticate);
+
+// POST /api/songs/audio — strategist uploads an MP3; bytes stored in Postgres
+// (song_audio). Returns { url } pointing at the stream route above, matching
+// the shape the song form expects for `link`.
+router.post('/audio', requireRole('strategist'), audioUpload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file provided (field name: "file")' });
+  try {
+    const { rows } = await db.query(
+      'INSERT INTO song_audio (data, mime, filename, size) VALUES ($1,$2,$3,$4) RETURNING id',
+      [req.file.buffer, req.file.mimetype || 'audio/mpeg', req.file.originalname || null, req.file.size]
+    );
+    res.status(201).json({ url: `/api/songs/audio/${rows[0].id}`, mime: req.file.mimetype, size: req.file.size });
+  } catch (err) {
+    if (err.code === '42P01') {
+      return res.status(503).json({ error: 'Audio storage missing — run migrate:v24.' });
+    }
+    throw err;
+  }
+});
 
 router.get('/', async (req, res) => {
   const { rows } = await db.query(
@@ -125,6 +170,19 @@ router.get('/:id/download', async (req, res) => {
   const { rows } = await db.query('SELECT name, link FROM songs WHERE id=$1', [req.params.id]);
   const song = rows[0];
   if (!song || !song.link) return res.status(404).json({ error: 'Not found' });
+
+  // In-DB audio: link is our own stream path (/api/songs/audio/<id>). Read the
+  // bytes straight from song_audio instead of HTTP-fetching ourselves.
+  const localMatch = song.link.match(/\/api\/songs\/audio\/([0-9a-f-]+)/i);
+  if (localMatch) {
+    const { rows: ar } = await db.query('SELECT data, mime FROM song_audio WHERE id=$1', [localMatch[1]]);
+    const audio = ar[0];
+    if (!audio) return res.status(404).json({ error: 'Audio not found' });
+    const filename = `${(song.name || 'song').replace(/[^a-z0-9-_]+/gi, '_')}.mp3`;
+    res.setHeader('Content-Type', audio.mime || 'audio/mpeg');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(audio.data);
+  }
 
   let upstream;
   try {

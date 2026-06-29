@@ -66,7 +66,7 @@ function AudioUpload({ url, setUrl }) {
     setBusy(true);
     setError(null);
     try {
-      const res = await api.uploadFile(file);
+      const res = await api.uploadSongAudio(file);
       setUrl(res.url);
     } catch (err) {
       setError(err.message);

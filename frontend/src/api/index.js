@@ -45,6 +45,20 @@ async function uploadFile(file) {
   return data; // { url, key, bucket, mime, size }
 }
 
+// Upload a song MP3 to the DB (song_audio). Returns { url } — an internal
+// /api/songs/audio/<id> stream path stored as the song's link. No Cloudinary.
+async function uploadSongAudio(file) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await fetch(`${BASE}/songs/audio`, { method: 'POST', headers, body: fd });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Upload failed');
+  return data; // { url, mime, size }
+}
+
 // Upload one or more footage files to a concept (field name: "files").
 async function uploadConceptFiles(conceptId, files) {
   const headers = {};
@@ -60,6 +74,7 @@ async function uploadConceptFiles(conceptId, files) {
 
 export const api = {
   uploadFile,
+  uploadSongAudio,
   uploadConceptFiles,
   // Concept uploads (v22 — in-app footage upload, replaces Playbook link)
   getConceptUploads: (id) => req('GET', `/concepts/${id}/uploads`),
