@@ -12,11 +12,11 @@ export const HOW_TO_RECORD =
   "text": "Lighting is bright and natural"
  },
  {
-  "kind": "text",
+  "kind": "note",
   "text": "→ If it’s too dark inside, film outside."
  },
  {
-  "kind": "text",
+  "kind": "note",
   "text": "→ Never film against the light, this applies both indoors and outdoors."
  },
  {
@@ -53,18 +53,6 @@ export const HOW_TO_RECORD =
  },
  {
   "kind": "text",
-  "text": "BAD:"
- },
- {
-  "kind": "image",
-  "file": "/how-to-record/media-02.png"
- },
- {
-  "kind": "image",
-  "file": "/how-to-record/media-03.png"
- },
- {
-  "kind": "text",
   "text": "AESTHETIC INDOORS:"
  },
  {
@@ -72,28 +60,12 @@ export const HOW_TO_RECORD =
   "file": "/how-to-record/media-04.mp4"
  },
  {
-  "kind": "image",
-  "file": "/how-to-record/media-05.png"
- },
- {
   "kind": "text",
-  "text": "TRAVEL OUTDOORS:"
- },
- {
-  "kind": "image",
-  "file": "/how-to-record/travel-outdoors.png"
- },
- {
-  "kind": "text",
-  "text": "AESTHETIC OUTDOORS :"
+  "text": "AESTHETIC OUTDOORS:"
  },
  {
   "kind": "video",
   "file": "/how-to-record/media-08.mp4"
- },
- {
-  "kind": "video",
-  "file": "/how-to-record/media-09.mp4"
  },
  {
   "kind": "header",

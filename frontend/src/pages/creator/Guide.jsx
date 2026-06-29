@@ -574,6 +574,7 @@ export default function Guide() {
               {HOW_TO_RECORD.map((b, i) => {
                 if (b.kind === 'header') return <h4 key={i} className={styles.checklistHeader}>{b.text}</h4>;
                 if (b.kind === 'todo') return <p key={i} className={styles.checklistTodo}>☐ {b.text}</p>;
+                if (b.kind === 'note') return <p key={i} className={styles.checklistNote}>{b.text}</p>;
                 if (b.kind === 'text') return <p key={i} className={styles.checklistCaption}>{b.text}</p>;
                 if (b.kind === 'image') return <img key={i} className={styles.checklistMedia} src={b.file} alt="" loading="lazy" />;
                 if (b.kind === 'video') return (
