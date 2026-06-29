@@ -330,18 +330,32 @@ export default function Guide() {
                   label={c.visuals_learnings.record_title || 'How to record - Step By Step:'}
                 />
               )}
-              {c.visuals_learnings.checklist_url && (
+              {(c.visuals_learnings.checklist_body || c.visuals_learnings.checklist_url) && (
                 <>
                   {c.visuals_learnings.checklist_intro && (
                     <p className={styles.bodyText}>{c.visuals_learnings.checklist_intro}</p>
                   )}
-                  <button
-                    type="button"
-                    className={styles.tutorialBtn}
-                    onClick={() => setShowChecklist(true)}
-                  >
-                    {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
-                  </button>
+                  {/* Prefer the in-app modal (checklist_body). Fall back to the
+                      external link only when no body content is set, since
+                      Notion etc. can't be embedded. */}
+                  {c.visuals_learnings.checklist_body ? (
+                    <button
+                      type="button"
+                      className={styles.tutorialBtn}
+                      onClick={() => setShowChecklist(true)}
+                    >
+                      {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
+                    </button>
+                  ) : (
+                    <a
+                      className={styles.tutorialBtn}
+                      href={c.visuals_learnings.checklist_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
+                    </a>
+                  )}
                 </>
               )}
             </Accordion>
@@ -551,9 +565,9 @@ export default function Guide() {
       )}
 
       {/* ---- How to Record checklist modal ----
-          Opens the strategist-set checklist link (Notion etc.) in an in-app
-          iframe instead of a new tab. */}
-      {showChecklist && c.visuals_learnings?.checklist_url && (
+          Renders the strategist-set checklist content in-app (no new tab,
+          no iframe — Notion etc. block embedding). One line per step. */}
+      {showChecklist && c.visuals_learnings?.checklist_body && (
         <div
           className={styles.checklistOverlay}
           onClick={(e) => { if (e.target === e.currentTarget) setShowChecklist(false); }}
@@ -567,13 +581,18 @@ export default function Guide() {
             >
               ✕
             </button>
-            <iframe
-              className={styles.checklistFrame}
-              src={c.visuals_learnings.checklist_url}
-              title={c.visuals_learnings.checklist_label || 'How to Record Checklist'}
-              frameBorder="0"
-              allowFullScreen
-            />
+            <div className={styles.checklistBody}>
+              <h3 className={styles.checklistTitle}>
+                {c.visuals_learnings.checklist_label?.replace(/\s*→\s*$/, '') || 'How to Record Checklist'}
+              </h3>
+              {c.visuals_learnings.checklist_body
+                .split('\n')
+                .map(line => line.trim())
+                .filter(Boolean)
+                .map((line, i) => (
+                  <p key={i} className={styles.checklistLine}>{line}</p>
+                ))}
+            </div>
           </div>
         </div>
       )}
