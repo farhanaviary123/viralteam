@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Guide.module.css';
+import { HOW_TO_RECORD } from '../../data/howToRecord';
 
 // Steps:
 //   'landing'  → "Ready to make your next video?"
@@ -330,34 +331,21 @@ export default function Guide() {
                   label={c.visuals_learnings.record_title || 'How to record - Step By Step:'}
                 />
               )}
-              {(c.visuals_learnings.checklist_body || c.visuals_learnings.checklist_url) && (
-                <>
-                  {c.visuals_learnings.checklist_intro && (
-                    <p className={styles.bodyText}>{c.visuals_learnings.checklist_intro}</p>
-                  )}
-                  {/* Prefer the in-app modal (checklist_body). Fall back to the
-                      external link only when no body content is set, since
-                      Notion etc. can't be embedded. */}
-                  {c.visuals_learnings.checklist_body ? (
-                    <button
-                      type="button"
-                      className={styles.tutorialBtn}
-                      onClick={() => setShowChecklist(true)}
-                    >
-                      {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
-                    </button>
-                  ) : (
-                    <a
-                      className={styles.tutorialBtn}
-                      href={c.visuals_learnings.checklist_url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
-                    </a>
-                  )}
-                </>
-              )}
+              {/* How to Record checklist — content is bundled (HOW_TO_RECORD)
+                  and rendered in an in-app modal, since the Notion page can't
+                  be embedded. */}
+              <>
+                {c.visuals_learnings.checklist_intro && (
+                  <p className={styles.bodyText}>{c.visuals_learnings.checklist_intro}</p>
+                )}
+                <button
+                  type="button"
+                  className={styles.tutorialBtn}
+                  onClick={() => setShowChecklist(true)}
+                >
+                  {c.visuals_learnings.checklist_label || 'How to Record Checklist →'}
+                </button>
+              </>
             </Accordion>
           )}
 
@@ -565,9 +553,9 @@ export default function Guide() {
       )}
 
       {/* ---- How to Record checklist modal ----
-          Renders the strategist-set checklist content in-app (no new tab,
-          no iframe — Notion etc. block embedding). One line per step. */}
-      {showChecklist && c.visuals_learnings?.checklist_body && (
+          Renders bundled content (HOW_TO_RECORD) in-app — no new tab, no
+          iframe, since the source Notion page blocks embedding. */}
+      {showChecklist && (
         <div
           className={styles.checklistOverlay}
           onClick={(e) => { if (e.target === e.currentTarget) setShowChecklist(false); }}
@@ -582,16 +570,17 @@ export default function Guide() {
               ✕
             </button>
             <div className={styles.checklistBody}>
-              <h3 className={styles.checklistTitle}>
-                {c.visuals_learnings.checklist_label?.replace(/\s*→\s*$/, '') || 'How to Record Checklist'}
-              </h3>
-              {c.visuals_learnings.checklist_body
-                .split('\n')
-                .map(line => line.trim())
-                .filter(Boolean)
-                .map((line, i) => (
-                  <p key={i} className={styles.checklistLine}>{line}</p>
-                ))}
+              <h3 className={styles.checklistTitle}>🎬 How to Record</h3>
+              {HOW_TO_RECORD.map((b, i) => {
+                if (b.kind === 'header') return <h4 key={i} className={styles.checklistHeader}>{b.text}</h4>;
+                if (b.kind === 'todo') return <p key={i} className={styles.checklistTodo}>☐ {b.text}</p>;
+                if (b.kind === 'text') return <p key={i} className={styles.checklistCaption}>{b.text}</p>;
+                if (b.kind === 'image') return <img key={i} className={styles.checklistMedia} src={b.file} alt="" loading="lazy" />;
+                if (b.kind === 'video') return (
+                  <video key={i} className={styles.checklistMedia} src={b.file} controls playsInline muted loop preload="metadata" />
+                );
+                return null;
+              })}
             </div>
           </div>
         </div>

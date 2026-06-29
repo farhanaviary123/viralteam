@@ -265,11 +265,7 @@ export default function GuideContentEditor() {
                 <input style={input} value={data.visuals_learnings?.checklist_intro || ''} placeholder="Check out the How to Record Checklist here:" onChange={e => up(['visuals_learnings', 'checklist_intro'], e.target.value)} />
                 <label style={fieldLabel}>Checklist button label</label>
                 <input style={input} value={data.visuals_learnings?.checklist_label || ''} placeholder="How to Record Checklist →" onChange={e => up(['visuals_learnings', 'checklist_label'], e.target.value)} />
-                <label style={fieldLabel}>Checklist content (shown in the in-app popup)</label>
-                <p style={{ fontSize: 12, color: '#857D70', margin: '0 0 8px' }}>One step per line. Shown to creators in a modal — no new tab. Use this instead of a Notion link (Notion can't be embedded).</p>
-                <textarea style={textarea} value={data.visuals_learnings?.checklist_body || ''} onChange={e => up(['visuals_learnings', 'checklist_body'], e.target.value)} />
-                <label style={fieldLabel}>Checklist link (fallback — opens in new tab if no content above)</label>
-                <input style={input} value={data.visuals_learnings?.checklist_url || ''} onChange={e => up(['visuals_learnings', 'checklist_url'], e.target.value)} />
+                <p style={{ fontSize: 12, color: '#857D70', margin: '0 0 8px' }}>The checklist content (text, photos, videos) is built into the app and shown to creators in an in-app popup — nothing to set here.</p>
               </Section>
 
               <Section id="which_text" title="Which text to use — Path A (viral video)" defaultOpen={false} open={open} setOpen={setOpen}>
