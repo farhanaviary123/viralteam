@@ -164,8 +164,17 @@ export default function Guide() {
     // Step 2 headlines + Step 3 sounds are data-driven. Empty DB → empty arrays
     // (the wizard renders the static guidance and simply omits the lists).
     api.getRandomCopyLines(5).then(setCopyLines).catch(() => setCopyLines([]));
+    // Shuffle the active sounds so a different set of 5 shows each time the
+    // wizard opens (Fisher–Yates, then take 5).
     api.getSongs()
-      .then(rows => setSongs((rows || []).filter(s => s.status === 'active').slice(0, 5)))
+      .then(rows => {
+        const active = (rows || []).filter(s => s.status === 'active');
+        for (let i = active.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [active[i], active[j]] = [active[j], active[i]];
+        }
+        setSongs(active.slice(0, 5));
+      })
       .catch(() => setSongs([]));
   }, []);
 
