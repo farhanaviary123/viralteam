@@ -74,6 +74,25 @@
   padding: 10px 12px;
   margin-top: 8px;
 }
+.headlineRowHp {
+  background: #FFF9E6;
+  border-color: #F0D97A;
+}
+.headlineTextWrap {
+  flex: 1;
+  min-width: 0;
+}
+.hpBadge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #8A6D00;
+  background: #FBEEB8;
+  border-radius: 6px;
+  padding: 2px 7px;
+  margin-bottom: 5px;
+}
 .headlineText {
   font-size: 13.5px;
   color: #1F1B14;

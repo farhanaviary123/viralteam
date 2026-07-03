@@ -26,7 +26,8 @@
     "migrate:v21": "node src/db/migrate-v21.js",
     "migrate:v22": "node src/db/migrate-v22.js",
     "migrate:v23": "node src/db/migrate-v23.js",
-    "migrate:v24": "node src/db/migrate-v24.js"
+    "migrate:v24": "node src/db/migrate-v24.js",
+    "migrate:v25": "node src/db/migrate-v25.js"
   },
   "keywords": [],
   "author": "",

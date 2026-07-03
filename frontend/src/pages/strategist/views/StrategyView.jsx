@@ -175,6 +175,7 @@ function CopyLineModal({ copyLine, angleId, vibes, products = [], onClose, onSav
   const [vibeIds, setVibeIds] = useState(copyLine?.vibe_ids || []);
   const [allVibes, setAllVibes] = useState(!!copyLine?.all_vibes);
   const [productIds, setProductIds] = useState(copyLine?.product_ids || []); // [] = All products
+  const [highPotential, setHighPotential] = useState(!!copyLine?.high_potential);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -214,6 +215,7 @@ function CopyLineModal({ copyLine, angleId, vibes, products = [], onClose, onSav
         copy_type: cleaned.length > 1 ? 'multi_headline' : 'single_headline',
         status: form.status,
         priority_weight: Number(form.priority_weight),
+        high_potential: highPotential,
         vibe_ids: vibeIds,
         all_vibes: allVibes,
         product_ids: productIds,
@@ -293,6 +295,20 @@ function CopyLineModal({ copyLine, angleId, vibes, products = [], onClose, onSav
           <select className={styles.select} value={form.priority_weight} onChange={set('priority_weight')}>
             {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
+        </div>
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={highPotential}
+              onChange={e => setHighPotential(e.target.checked)}
+              style={{ width: 16, height: 16, cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#1F1B14' }}>⭐ High Potential</span>
+          </label>
+          <p style={{ fontSize: 12, color: '#857D70', margin: '4px 0 0 24px' }}>
+            Pins this headline to the top of the creator list and badges it (browsing + randomizer).
+          </p>
         </div>
         <div>
           <label className={styles.label}>
