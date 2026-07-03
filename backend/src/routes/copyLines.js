@@ -44,31 +44,41 @@ router.get('/archived', requireRole('strategist'), async (req, res) => {
 });
 
 // GET /api/copy-lines/random?limit=5 — any authenticated user.
-// Returns up to `limit` random active, non-archived copy lines, ignoring angle.
-// Used by the creator Guide wizard (Step 2) to surface ready-to-use headlines.
-// Returns [] when the table is empty so the wizard renders gracefully.
+// Returns up to `limit` active, non-archived copy lines, ignoring angle.
+// High-potential lines are surfaced first (so creators always see the ones the
+// strategist flagged), then the remaining slots are filled at random. Used by
+// the creator Guide wizard (Step 2). Returns [] when empty.
 router.get('/random', async (req, res) => {
   const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 5, 1), 20);
+  // withHp: high_potential first, then random. Falls back through missing
+  // columns (high_potential → archived) on un-migrated databases.
   try {
     const { rows } = await db.query(
       `SELECT * FROM copy_lines
          WHERE archived = FALSE
-         ORDER BY random()
+         ORDER BY high_potential DESC, random()
          LIMIT $1`,
       [limit]
     );
     return res.json(rows);
   } catch (err) {
-    // Pre-v20 (no archived column) — fall back without the archived filter.
-    if (err.code === '42703') {
+    if (err.code !== '42703') {
+      if (err.code === '42P01') return res.json([]); // table not yet migrated
+      throw err;
+    }
+    // high_potential and/or archived column missing — degrade gracefully.
+    try {
       const { rows } = await db.query(
         `SELECT * FROM copy_lines WHERE archived = FALSE ORDER BY random() LIMIT $1`,
         [limit]
       );
       return res.json(rows);
+    } catch (err2) {
+      if (err2.code === '42P01') return res.json([]);
+      if (err2.code !== '42703') throw err2;
+      const { rows } = await db.query('SELECT * FROM copy_lines ORDER BY random() LIMIT $1', [limit]);
+      return res.json(rows);
     }
-    if (err.code === '42P01') return res.json([]); // table not yet migrated
-    throw err;
   }
 });
 
