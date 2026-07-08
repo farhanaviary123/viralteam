@@ -24,7 +24,7 @@ function SongPlayer({ song }) {
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href = song.link;
-    a.download = song.name || 'song';
+    a.download = (song.name || 'song').replace(/[^a-z0-9-_]+/gi, '_') + '.mp3';
     a.click();
   };
 

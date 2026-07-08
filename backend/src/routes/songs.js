@@ -31,6 +31,7 @@ router.get('/audio/:id', async (req, res) => {
   if (!audio) return res.status(404).json({ error: 'Not found' });
   res.setHeader('Content-Type', audio.mime || 'audio/mpeg');
   res.setHeader('Content-Length', audio.data.length);
+  res.setHeader('Content-Disposition', 'inline');
   res.send(audio.data);
 });
 
