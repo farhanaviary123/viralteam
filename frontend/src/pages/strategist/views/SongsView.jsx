@@ -21,11 +21,12 @@ function SongPlayer({ song }) {
     else { audioRef.current.play(); setPlaying(true); }
   };
 
-  const handleDownload = () => {
-    const a = document.createElement('a');
-    a.href = song.link;
-    a.download = (song.name || 'song').replace(/[^a-z0-9-_]+/gi, '_') + '.mp3';
-    a.click();
+  const handleDownload = async () => {
+    try {
+      await api.downloadSong(song.id, song.name);
+    } catch {
+      alert('Could not download this sound.');
+    }
   };
 
   if (!isAudioFile(song.link)) {
