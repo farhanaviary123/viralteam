@@ -3,6 +3,10 @@ const multer = require('multer');
 const db = require('../db');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { setVibes, attachVibes } = require('../lib/vibes');
+const { Readable, pipeline } = require('stream');
+const { promisify } = require('util');
+
+const pipelineAsync = promisify(pipeline);
 
 const router = express.Router();
 
@@ -186,7 +190,12 @@ router.get('/:id/download', async (req, res) => {
 
   let upstream;
   try {
-    upstream = await fetch(song.link, { redirect: 'follow' });
+    upstream = await fetch(song.link, {
+      redirect: 'follow',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+    });
   } catch (err) {
     console.error('[songs download] fetch failed', song.link, err);
     return res.status(502).json({ error: 'Could not fetch audio source' });
@@ -200,10 +209,21 @@ router.get('/:id/download', async (req, res) => {
   const filename = `${(song.name || 'song').replace(/[^a-z0-9-_]+/gi, '_')}.${ext}`;
   res.setHeader('Content-Type', mime);
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  const contentLength = upstream.headers.get('content-length');
+  if (contentLength) {
+    res.setHeader('Content-Length', contentLength);
+  }
 
-  // Stream the upstream body to the client (Node 18+ web stream → Node stream).
-  const { Readable } = require('stream');
-  Readable.fromWeb(upstream.body).pipe(res);
+  try {
+    await pipelineAsync(Readable.fromWeb(upstream.body), res);
+  } catch (err) {
+    console.error('[songs download] stream error', song.link, err);
+    if (!res.headersSent) {
+      res.status(502).json({ error: 'Audio stream failed' });
+    } else {
+      res.destroy(err);
+    }
+  }
 });
 
 module.exports = router;
