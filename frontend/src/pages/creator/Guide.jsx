@@ -498,7 +498,7 @@ export default function Guide() {
                     {s.tiktok_link && (
                       <a className={styles.soundBtn} href={s.tiktok_link} target="_blank" rel="noreferrer">IG/TikTok Link →</a>
                     )}
-                    {s.link && (
+                    {s.link && (s.link.includes('/api/songs/audio/') || s.link.includes('res.cloudinary.com') || /\.(mp3|wav|m4a|aac|ogg)(\?|$)/i.test(s.link)) && (
                       <button
                         type="button"
                         className={styles.soundBtn}
