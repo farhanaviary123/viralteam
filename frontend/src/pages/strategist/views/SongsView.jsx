@@ -18,7 +18,7 @@ function SongPlayer({ song }) {
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (playing) { audioRef.current.pause(); setPlaying(false); }
-    else { audioRef.current.play(); setPlaying(true); }
+    else { audioRef.current.play().catch(err => console.error('Play failed:', err)); setPlaying(true); }
   };
 
   const handleDownload = async () => {
@@ -40,7 +40,7 @@ function SongPlayer({ song }) {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <audio ref={audioRef} src={song.link} onEnded={() => setPlaying(false)} />
+      <audio ref={audioRef} src={song.link} preload="auto" onEnded={() => setPlaying(false)} onError={e => console.error('Audio error:', e.target.error)} />
       <button onClick={togglePlay} style={{
         background: '#6366f1', color: '#fff', border: 'none',
         borderRadius: 20, padding: '4px 12px', cursor: 'pointer', fontSize: 13
