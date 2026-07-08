@@ -11,6 +11,7 @@ function SongPlayer({ song }) {
   const isAudioFile = (url) => {
     if (!url) return false;
     if (url.includes('res.cloudinary.com')) return true;
+    if (url.includes('/api/songs/audio/')) return true;
     return /\.(mp3|wav|m4a|aac|ogg)(\?|$)/i.test(url);
   };
 
