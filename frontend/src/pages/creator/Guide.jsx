@@ -131,14 +131,14 @@ function HighPotentialBadge() {
 
 function HeadlineList({ lines = [] }) {
   if (!lines.length) return null;
-  // Pin high-potential headlines to the top so they're easy to spot.
-  const sorted = [...lines].sort((a, b) => (b.high_potential ? 1 : 0) - (a.high_potential ? 1 : 0));
   return (
     <>
-      {sorted.map((l) => (
+      {lines.map((l) => (
         <div key={l.id} className={`${styles.headlineRow} ${l.high_potential ? styles.headlineRowHp : ''}`}>
           <div className={styles.headlineTextWrap}>
-            {l.high_potential && <HighPotentialBadge />}
+            <span className={l.high_potential ? styles.hpBadge : styles.hpBadgeMuted}>
+              ⭐ High Potential
+            </span>
             <p className={styles.headlineText}>{l.copy_text}</p>
           </div>
           <CopyChip text={l.copy_text} />
@@ -551,7 +551,9 @@ export default function Guide() {
                   {g.lines.map((l) => (
                     <div key={l.id} className={`${styles.headlineRow} ${l.high_potential ? styles.headlineRowHp : ''}`}>
                       <div className={styles.headlineTextWrap}>
-                        {l.high_potential && <HighPotentialBadge />}
+                        <span className={l.high_potential ? styles.hpBadge : styles.hpBadgeMuted}>
+                          ⭐ High Potential
+                        </span>
                         <p className={styles.headlineText}>{l.copy_text}</p>
                       </div>
                       <CopyChip text={l.copy_text} />

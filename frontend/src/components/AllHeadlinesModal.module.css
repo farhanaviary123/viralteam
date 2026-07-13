@@ -93,6 +93,17 @@
   padding: 2px 7px;
   margin-bottom: 5px;
 }
+.hpBadgeMuted {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #C5BDB1;
+  background: #F5F3F0;
+  border-radius: 6px;
+  padding: 2px 7px;
+  margin-bottom: 5px;
+}
 .headlineText {
   font-size: 13.5px;
   color: #1F1B14;
