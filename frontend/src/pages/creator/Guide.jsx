@@ -133,12 +133,12 @@ function HeadlineList({ lines = [] }) {
   if (!lines.length) return null;
   return (
     <>
-      {lines.map((l) => (
+      {[...lines].sort((a, b) => b.high_potential - a.high_potential).map((l) => (
         <div key={l.id} className={`${styles.headlineRow} ${l.high_potential ? styles.headlineRowHp : ''}`}>
           <div className={styles.headlineTextWrap}>
-            <span className={l.high_potential ? styles.hpBadge : styles.hpBadgeMuted}>
-              ⭐ High Potential
-            </span>
+            {l.high_potential && (
+              <span className={styles.hpBadge}>⭐ High Potential</span>
+            )}
             <p className={styles.headlineText}>{l.copy_text}</p>
           </div>
           <CopyChip text={l.copy_text} />
@@ -559,15 +559,19 @@ export default function Guide() {
               {!groupedErr && groupedLines !== null && groupedLines.length === 0 && (
                 <p className={styles.bodyText}>No headlines yet.</p>
               )}
-              {(groupedLines || []).map((g) => (
+              {[...(groupedLines || [])].sort((a, b) => {
+                const aHp = a.lines.some(l => l.high_potential) ? 1 : 0;
+                const bHp = b.lines.some(l => l.high_potential) ? 1 : 0;
+                return bHp - aHp;
+              }).map((g) => (
                 <div key={g.angle_id} className={styles.angleGroup}>
                   <p className={styles.angleName}>{g.angle_name}</p>
-                  {g.lines.map((l) => (
+                  {[...g.lines].sort((a, b) => b.high_potential - a.high_potential).map((l) => (
                     <div key={l.id} className={`${styles.headlineRow} ${l.high_potential ? styles.headlineRowHp : ''}`}>
                       <div className={styles.headlineTextWrap}>
-                        <span className={l.high_potential ? styles.hpBadge : styles.hpBadgeMuted}>
-                          ⭐ High Potential
-                        </span>
+                        {l.high_potential && (
+                          <span className={styles.hpBadge}>⭐ High Potential</span>
+                        )}
                         <p className={styles.headlineText}>{l.copy_text}</p>
                       </div>
                       <CopyChip text={l.copy_text} />
