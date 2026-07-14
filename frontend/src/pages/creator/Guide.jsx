@@ -180,11 +180,14 @@ export default function Guide() {
     api.getSongs()
       .then(rows => {
         const active = (rows || []).filter(s => s.status === 'active');
-        for (let i = active.length - 1; i > 0; i--) {
+        // High-potential songs are always shown first; remaining slots filled at random.
+        const hp = active.filter(s => s.high_potential);
+        const rest = active.filter(s => !s.high_potential);
+        for (let i = rest.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
-          [active[i], active[j]] = [active[j], active[i]];
+          [rest[i], rest[j]] = [rest[j], rest[i]];
         }
-        setSongs(active.slice(0, 5));
+        setSongs([...hp, ...rest].slice(0, 5));
       })
       .catch(() => setSongs([]));
   }, []);
@@ -493,7 +496,18 @@ export default function Guide() {
             <Accordion icon="🎵" title="Which sound to use">
               {songs.map((s, i) => (
                 <div key={s.id} className={styles.soundRow}>
-                  <p className={styles.soundLabel}>{s.name || `Trending sound ${i + 1}`}</p>
+                  <div>
+                    {s.high_potential && (
+                      <span style={{
+                        display: 'inline-block', fontSize: 11, fontWeight: 700,
+                        color: '#6366f1', background: '#ede9fe',
+                        borderRadius: 4, padding: '2px 6px', marginBottom: 4,
+                      }}>
+                        ⭐ High Potential
+                      </span>
+                    )}
+                    <p className={styles.soundLabel}>{s.name || `Trending sound ${i + 1}`}</p>
+                  </div>
                   <div className={styles.soundBtns}>
                     {s.tiktok_link && (
                       <a className={styles.soundBtn} href={s.tiktok_link} target="_blank" rel="noreferrer">IG/TikTok Link →</a>

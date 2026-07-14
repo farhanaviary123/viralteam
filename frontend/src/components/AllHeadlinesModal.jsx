@@ -49,12 +49,12 @@ export default function AllHeadlinesModal({ onClose }) {
           {(groups || []).map((g) => (
             <div key={g.angle_id} className={styles.angleGroup}>
               <p className={styles.angleName}>{g.angle_name}</p>
-              {g.lines.map((l) => (
+              {[...g.lines].sort((a, b) => b.high_potential - a.high_potential).map((l) => (
                 <div key={l.id} className={`${styles.headlineRow} ${l.high_potential ? styles.headlineRowHp : ''}`}>
                   <div className={styles.headlineTextWrap}>
-                    <span className={l.high_potential ? styles.hpBadge : styles.hpBadgeMuted}>
-                      ⭐ High Potential
-                    </span>
+                    {l.high_potential && (
+                      <span className={styles.hpBadge}>⭐ High Potential</span>
+                    )}
                     <p className={styles.headlineText}>{l.copy_text}</p>
                   </div>
                   <CopyChip text={l.copy_text} />
