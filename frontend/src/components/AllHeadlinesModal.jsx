@@ -46,7 +46,11 @@ export default function AllHeadlinesModal({ onClose }) {
           {!err && groups !== null && groups.length === 0 && (
             <p className={styles.bodyText}>No headlines yet.</p>
           )}
-          {(groups || []).map((g) => (
+          {[...(groups || [])].sort((a, b) => {
+            const aHp = a.lines.some(l => l.high_potential) ? 1 : 0;
+            const bHp = b.lines.some(l => l.high_potential) ? 1 : 0;
+            return bHp - aHp;
+          }).map((g) => (
             <div key={g.angle_id} className={styles.angleGroup}>
               <p className={styles.angleName}>{g.angle_name}</p>
               {[...g.lines].sort((a, b) => b.high_potential - a.high_potential).map((l) => (
