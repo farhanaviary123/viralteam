@@ -143,9 +143,11 @@ function SongModal({ song, vibes, onClose, onSaved, onDeleted, onVibeCreated, on
     platform: song?.platform || 'tiktok',
     status: song?.status || 'active',
     priority_weight: song?.priority_weight || 3,
+    added_date: song?.added_date ? song.added_date.slice(0, 10) : '',
   });
   const [vibeIds, setVibeIds] = useState(song?.vibe_ids || []);
   const [allVibes, setAllVibes] = useState(!!song?.all_vibes);
+  const [highPotential, setHighPotential] = useState(!!song?.high_potential);
   const [saving, setSaving] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -157,9 +159,11 @@ function SongModal({ song, vibes, onClose, onSaved, onDeleted, onVibeCreated, on
       const data = {
         ...form,
         tiktok_link: (form.tiktok_link || '').trim() || null,
+        added_date: form.added_date || null,
         priority_weight: Number(form.priority_weight),
         vibe_ids: vibeIds,
         all_vibes: allVibes,
+        high_potential: highPotential,
       };
       const saved = song ? await api.updateSong(song.id, data) : await api.createSong(data);
       onSaved(saved);
@@ -220,6 +224,29 @@ function SongModal({ song, vibes, onClose, onSaved, onDeleted, onVibeCreated, on
           <select className={styles.select} value={form.priority_weight} onChange={set('priority_weight')}>
             {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
+        </div>
+        <div>
+          <label className={styles.label}>Date Added</label>
+          <input
+            className={styles.input}
+            type="date"
+            value={form.added_date}
+            onChange={set('added_date')}
+          />
+        </div>
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={highPotential}
+              onChange={e => setHighPotential(e.target.checked)}
+              style={{ width: 16, height: 16, accentColor: '#6366f1' }}
+            />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#1F1B14' }}>⭐ High Potential</span>
+          </label>
+          <p style={{ fontSize: 12, color: '#857D70', margin: '4px 0 0 24px' }}>
+            Pins this sound to the top of the creator list and badges it.
+          </p>
         </div>
         <div>
           <VibePicker
@@ -299,6 +326,20 @@ export default function SongsView() {
               <p className={styles.itemName}>{s.name}</p>
               <span className={styles.weightBadge}>{s.priority_weight}</span>
             </div>
+            {(s.high_potential || s.added_date) && (
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4, flexWrap: 'wrap' }}>
+                {s.high_potential && (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', background: '#ede9fe', borderRadius: 4, padding: '2px 6px' }}>
+                    ⭐ High Potential
+                  </span>
+                )}
+                {s.added_date && (
+                  <span style={{ fontSize: 11, color: '#857D70' }}>
+                    Added {new Date(s.added_date).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            )}
             <div onClick={e => e.stopPropagation()}>
               <SongPlayer song={s} />
             </div>

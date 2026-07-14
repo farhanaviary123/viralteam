@@ -57,40 +57,58 @@ router.post('/audio', requireRole('strategist'), audioUpload.single('file'), asy
 });
 
 router.get('/', async (req, res) => {
-  const { rows } = await db.query(
-    'SELECT * FROM songs ORDER BY priority_weight DESC, created_at ASC'
-  );
+  let rows;
+  try {
+    ({ rows } = await db.query(
+      'SELECT * FROM songs ORDER BY high_potential DESC, priority_weight DESC, created_at ASC'
+    ));
+  } catch (err) {
+    if (err.code !== '42703') throw err;
+    // high_potential column missing (pre-v26) — degrade gracefully.
+    ({ rows } = await db.query(
+      'SELECT * FROM songs ORDER BY priority_weight DESC, created_at ASC'
+    ));
+  }
   const withVibes = await attachVibes(rows, 'song_vibes', 'song_id');
   res.json(withVibes);
 });
 
 router.post('/', requireRole('strategist'), async (req, res) => {
-  const { name, link, tiktok_link, platform, priority_weight = 3, all_vibes = false, vibe_ids = [] } = req.body;
+  const { name, link, tiktok_link, platform, priority_weight = 3, all_vibes = false, vibe_ids = [], high_potential = false, added_date } = req.body;
   if (!name || !link) return res.status(400).json({ error: 'Name and link required' });
   const plat = platform === 'ig' ? 'ig' : 'tiktok';
   let rows;
   try {
     ({ rows } = await db.query(
-      'INSERT INTO songs (name, link, tiktok_link, platform, priority_weight, all_vibes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-      [name, link, tiktok_link || null, plat, priority_weight, all_vibes]
+      'INSERT INTO songs (name, link, tiktok_link, platform, priority_weight, all_vibes, high_potential, added_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
+      [name, link, tiktok_link || null, plat, priority_weight, all_vibes, !!high_potential, added_date || null]
     ));
   } catch (err) {
     if (err.code !== '42703') throw err;
-    // platform (v23) missing — retry without it.
-    console.warn('[songs POST] platform column missing — run migrate:v23. Inserting without it.');
+    // high_potential/added_date (v26) or platform (v23) missing — retry progressively.
+    console.warn('[songs POST] v26 columns missing — run migrate:v26. Inserting without them.');
     try {
       ({ rows } = await db.query(
-        'INSERT INTO songs (name, link, tiktok_link, priority_weight, all_vibes) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-        [name, link, tiktok_link || null, priority_weight, all_vibes]
+        'INSERT INTO songs (name, link, tiktok_link, platform, priority_weight, all_vibes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+        [name, link, tiktok_link || null, plat, priority_weight, all_vibes]
       ));
     } catch (err2) {
       if (err2.code !== '42703') throw err2;
-      // Pre-v19 fallback (no tiktok_link column yet).
-      console.warn('[songs POST] tiktok_link column missing — run migrate:v19. Inserting without it.');
-      ({ rows } = await db.query(
-        'INSERT INTO songs (name, link, priority_weight, all_vibes) VALUES ($1,$2,$3,$4) RETURNING *',
-        [name, link, priority_weight, all_vibes]
-      ));
+      console.warn('[songs POST] platform column missing — run migrate:v23. Inserting without it.');
+      try {
+        ({ rows } = await db.query(
+          'INSERT INTO songs (name, link, tiktok_link, priority_weight, all_vibes) VALUES ($1,$2,$3,$4,$5) RETURNING *',
+          [name, link, tiktok_link || null, priority_weight, all_vibes]
+        ));
+      } catch (err3) {
+        if (err3.code !== '42703') throw err3;
+        // Pre-v19 fallback (no tiktok_link column yet).
+        console.warn('[songs POST] tiktok_link column missing — run migrate:v19. Inserting without it.');
+        ({ rows } = await db.query(
+          'INSERT INTO songs (name, link, priority_weight, all_vibes) VALUES ($1,$2,$3,$4) RETURNING *',
+          [name, link, priority_weight, all_vibes]
+        ));
+      }
     }
   }
   await setVibes('song_vibes', 'song_id', rows[0].id, vibe_ids);
@@ -99,9 +117,12 @@ router.post('/', requireRole('strategist'), async (req, res) => {
 });
 
 router.patch('/:id', requireRole('strategist'), async (req, res) => {
-  const { name, link, tiktok_link, platform, status, priority_weight, all_vibes, vibe_ids } = req.body;
+  const { name, link, tiktok_link, platform, status, priority_weight, all_vibes, vibe_ids, high_potential, added_date } = req.body;
   // Normalize platform: only 'ig' | 'tiktok' are valid; undefined leaves it unchanged.
   const plat = platform === undefined ? undefined : (platform === 'ig' ? 'ig' : 'tiktok');
+  const hpParam = high_potential === undefined ? null : !!high_potential;
+  // added_date: null means "clear it", undefined means "leave unchanged".
+  const dateParam = added_date === undefined ? undefined : (added_date || null);
   let rows;
   try {
     ({ rows } = await db.query(`
@@ -113,37 +134,57 @@ router.patch('/:id', requireRole('strategist'), async (req, res) => {
         status = COALESCE($5, status),
         priority_weight = COALESCE($6, priority_weight),
         all_vibes = COALESCE($7, all_vibes),
+        high_potential = COALESCE($8, high_potential),
+        added_date = COALESCE($9, added_date),
         updated_at = now()
-      WHERE id=$8 RETURNING *
-    `, [name, link, tiktok_link, plat, status, priority_weight, all_vibes, req.params.id]));
+      WHERE id=$10 RETURNING *
+    `, [name, link, tiktok_link, plat, status, priority_weight, all_vibes, hpParam, dateParam, req.params.id]));
   } catch (err) {
     if (err.code !== '42703') throw err;
-    console.warn('[songs PATCH] platform column missing — run migrate:v23. Updating without it.');
+    // high_potential/added_date (v26) missing — retry without them.
+    console.warn('[songs PATCH] v26 columns missing — run migrate:v26. Updating without them.');
     try {
       ({ rows } = await db.query(`
         UPDATE songs SET
           name = COALESCE($1, name),
           link = COALESCE($2, link),
           tiktok_link = COALESCE($3, tiktok_link),
-          status = COALESCE($4, status),
-          priority_weight = COALESCE($5, priority_weight),
-          all_vibes = COALESCE($6, all_vibes),
+          platform = COALESCE($4, platform),
+          status = COALESCE($5, status),
+          priority_weight = COALESCE($6, priority_weight),
+          all_vibes = COALESCE($7, all_vibes),
           updated_at = now()
-        WHERE id=$7 RETURNING *
-      `, [name, link, tiktok_link, status, priority_weight, all_vibes, req.params.id]));
+        WHERE id=$8 RETURNING *
+      `, [name, link, tiktok_link, plat, status, priority_weight, all_vibes, req.params.id]));
     } catch (err2) {
       if (err2.code !== '42703') throw err2;
-      console.warn('[songs PATCH] tiktok_link column missing — run migrate:v19. Updating without it.');
-      ({ rows } = await db.query(`
-        UPDATE songs SET
-          name = COALESCE($1, name),
-          link = COALESCE($2, link),
-          status = COALESCE($3, status),
-          priority_weight = COALESCE($4, priority_weight),
-          all_vibes = COALESCE($5, all_vibes),
-          updated_at = now()
-        WHERE id=$6 RETURNING *
-      `, [name, link, status, priority_weight, all_vibes, req.params.id]));
+      console.warn('[songs PATCH] platform column missing — run migrate:v23. Updating without it.');
+      try {
+        ({ rows } = await db.query(`
+          UPDATE songs SET
+            name = COALESCE($1, name),
+            link = COALESCE($2, link),
+            tiktok_link = COALESCE($3, tiktok_link),
+            status = COALESCE($4, status),
+            priority_weight = COALESCE($5, priority_weight),
+            all_vibes = COALESCE($6, all_vibes),
+            updated_at = now()
+          WHERE id=$7 RETURNING *
+        `, [name, link, tiktok_link, status, priority_weight, all_vibes, req.params.id]));
+      } catch (err3) {
+        if (err3.code !== '42703') throw err3;
+        console.warn('[songs PATCH] tiktok_link column missing — run migrate:v19. Updating without it.');
+        ({ rows } = await db.query(`
+          UPDATE songs SET
+            name = COALESCE($1, name),
+            link = COALESCE($2, link),
+            status = COALESCE($3, status),
+            priority_weight = COALESCE($4, priority_weight),
+            all_vibes = COALESCE($5, all_vibes),
+            updated_at = now()
+          WHERE id=$6 RETURNING *
+        `, [name, link, status, priority_weight, all_vibes, req.params.id]));
+      }
     }
   }
   if (!rows.length) return res.status(404).json({ error: 'Not found' });
