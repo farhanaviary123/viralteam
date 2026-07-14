@@ -495,7 +495,7 @@ export default function Guide() {
           {songs.length > 0 && (
             <Accordion icon="🎵" title="Which sound to use">
               {songs.map((s, i) => (
-                <div key={s.id} className={styles.soundRow}>
+                <div key={s.id} className={`${styles.soundRow} ${s.high_potential ? styles.soundRowHp : ''}`}>
                   <div>
                     {s.high_potential && (
                       <span style={{

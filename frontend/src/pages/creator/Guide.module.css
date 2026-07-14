@@ -332,6 +332,10 @@
 }
 
 /* sound rows (step 3) */
+.soundRowHp {
+  background: #FFF9E6;
+  border-color: #F0D97A;
+}
 .soundRow {
   display: flex;
   align-items: center;
