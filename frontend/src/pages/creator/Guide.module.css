@@ -344,8 +344,8 @@
   margin-top: 8px;
 }
 .soundRowHp {
-  background: #FFF9E6;
-  border-color: #F0D97A;
+  background: #ede9fe;
+  border-color: #c4b5fd;
 }
 .soundLabel { font-size: 13.5px; font-weight: 600; color: #1F1B14; margin: 0; }
 .soundBtns { display: flex; gap: 6px; flex: 0 0 auto; }
