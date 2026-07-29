@@ -59,7 +59,15 @@ export default function AllHeadlinesModal({ onClose }) {
                     {l.high_potential && (
                       <span className={styles.hpBadge}>⭐ High Potential</span>
                     )}
-                    <p className={styles.headlineText}>{l.copy_text}</p>
+                    {l.copy_text.includes('\n') ? (
+                      <div className={styles.headlineText}>
+                        {l.copy_text.split('\n').filter(Boolean).map((line, i) => (
+                          <p key={i} style={{ margin: '2px 0' }}><strong>Text {i + 1}:</strong> {line}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className={styles.headlineText}>{l.copy_text}</p>
+                    )}
                   </div>
                   <CopyChip text={l.copy_text} />
                 </div>
