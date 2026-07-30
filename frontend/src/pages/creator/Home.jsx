@@ -6,6 +6,76 @@ import Badge from '../../components/Badge';
 import AllHeadlinesModal from '../../components/AllHeadlinesModal';
 import styles from './Creator.module.css';
 
+// Simple full-screen modal used by the learning buttons on the home page.
+function ContentModal({ title, onClose, children }) {
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.45)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 16,
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{
+        background: 'var(--bg)', borderRadius: 16, width: '100%',
+        maxWidth: 430, maxHeight: '85vh', overflow: 'auto', padding: '20px 20px 28px',
+        position: 'relative',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{title}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px 8px' }}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Embedded video player (16:9 responsive) for Loom or YouTube.
+function VideoEmbed({ url, label }) {
+  if (!url) return null;
+  const s = String(url);
+  const loom = s.match(/loom\.com\/(?:share|embed)\/([a-f0-9]+)/i);
+  const yt = s.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i);
+  const embed = loom ? `https://www.loom.com/embed/${loom[1]}` : yt ? `https://www.youtube.com/embed/${yt[1]}` : null;
+  if (!embed) {
+    return <a href={url} target="_blank" rel="noreferrer" style={{ color: 'var(--green)', fontWeight: 600, fontSize: 13 }}>{label || 'Watch the video'} →</a>;
+  }
+  return (
+    <div style={{ marginTop: 12 }}>
+      {label && <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>{label}</p>}
+      <div style={{ position: 'relative', paddingBottom: '56.25%', borderRadius: 12, overflow: 'hidden', background: '#000' }}>
+        <iframe
+          src={embed}
+          title={label || 'Video'}
+          frameBorder="0"
+          allowFullScreen
+          allow="autoplay; fullscreen; picture-in-picture"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Rule({ emoji, children }) {
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
+      <span style={{ fontSize: 16, flexShrink: 0 }}>{emoji}</span>
+      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>{children}</span>
+    </div>
+  );
+}
+
 export default function CreatorHome() {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -13,18 +83,21 @@ export default function CreatorHome() {
   const [loading, setLoading] = useState(true);
   const [showAllHeadlines, setShowAllHeadlines] = useState(false);
 
+  // Guide content for the learning modals
+  const [content, setContent] = useState(null);
+  const [showVisuals, setShowVisuals] = useState(false);
+  const [showText, setShowText] = useState(false);
+  const [showMultiText, setShowMultiText] = useState(false);
+  const [showAngles, setShowAngles] = useState(false);
+
   useEffect(() => {
     api.getConcepts().then(setConcepts).finally(() => setLoading(false));
+    api.getGuideContent().then(setContent).catch(() => setContent({}));
   }, []);
 
-  // v21 Guide flow: concepts are static records — 'complete' (uploaded to
-  // Playbook) vs everything else still awaiting upload. Legacy statuses
-  // (needs_shooting/ready_to_edit) count as in-progress too.
   const inProgress = concepts.filter(c => c.status !== 'done' && c.status !== 'complete');
   const done = concepts.filter(c => c.status === 'done' || c.status === 'complete');
 
-  // Guide concepts carry no angle; their title is already "Concept N".
-  // Legacy concepts use "Concept N: <angle>".
   function conceptTitle(c) {
     if (c.angle_name) return `Concept ${c.sequential_number}: ${c.angle_name}`;
     return c.title || `Concept ${c.sequential_number}`;
@@ -35,6 +108,15 @@ export default function CreatorHome() {
     if (c.creative_path === 'from_text') return 'From a text';
     return '';
   }
+
+  const c = content || {};
+
+  // Button style generator
+  const btnStyle = (bg, border, color) => ({
+    display: 'block', width: '100%', boxSizing: 'border-box',
+    marginTop: 8, background: bg, border: `1px solid ${border}`,
+    color, borderRadius: 12, padding: 14, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+  });
 
   return (
     <div className={styles.page}>
@@ -52,23 +134,30 @@ export default function CreatorHome() {
       <button
         type="button"
         onClick={() => setShowAllHeadlines(true)}
-        style={{
-          display: 'block',
-          width: '100%',
-          boxSizing: 'border-box',
-          marginTop: 8,
-          marginBottom: 28,
-          background: '#E7F3EA',
-          border: '1px solid var(--green)',
-          color: 'var(--green)',
-          borderRadius: 12,
-          padding: 14,
-          fontSize: 14,
-          fontWeight: 700,
-          cursor: 'pointer',
-        }}
+        style={btnStyle('#E7F3EA', 'var(--green)', 'var(--green)')}
       >
         See all headlines
+      </button>
+
+      {/* Learning buttons */}
+      <button type="button" onClick={() => setShowVisuals(true)}
+        style={btnStyle('#EDE9FE', '#7C3AED', '#7C3AED')}>
+        Visuals Basic Learnings
+      </button>
+
+      <button type="button" onClick={() => setShowText(true)}
+        style={btnStyle('#DBEAFE', '#2563EB', '#2563EB')}>
+        Text Basic Learnings
+      </button>
+
+      <button type="button" onClick={() => setShowMultiText(true)}
+        style={btnStyle('#FEF3C7', '#D97706', '#D97706')}>
+        Multiple Texts Instructions
+      </button>
+
+      <button type="button" onClick={() => setShowAngles(true)}
+        style={{ ...btnStyle('#FEE2E2', '#DC2626', '#DC2626'), marginBottom: 28 }}>
+        Our Top 3 Angles
       </button>
 
       {loading ? (
@@ -122,6 +211,115 @@ export default function CreatorHome() {
       </nav>
 
       {showAllHeadlines && <AllHeadlinesModal onClose={() => setShowAllHeadlines(false)} />}
+
+      {/* Visuals Basic Learnings modal */}
+      {showVisuals && (
+        <ContentModal title={c.visuals_learnings?.title || 'Visuals Basic Learnings'} onClose={() => setShowVisuals(false)}>
+          {c.visuals_learnings?.charm_timing && (
+            <Rule emoji="⏱"><b>Charm timing.</b> {c.visuals_learnings.charm_timing}</Rule>
+          )}
+          {c.visuals_learnings?.filming && (
+            <Rule emoji="🎥">{c.visuals_learnings.filming}</Rule>
+          )}
+          {c.visuals_learnings?.record_video_url && (
+            <VideoEmbed
+              url={c.visuals_learnings.record_video_url}
+              label={c.visuals_learnings.record_title || 'How to record - Step By Step:'}
+            />
+          )}
+        </ContentModal>
+      )}
+
+      {/* Text Basic Learnings modal */}
+      {showText && (
+        <ContentModal title={c.editing?.text_learnings?.title || 'Text Basic Learnings'} onClose={() => setShowText(false)}>
+          {c.editing?.text_learnings?.font && (
+            <Rule emoji="🔤"><b>Font:</b> {c.editing.text_learnings.font}</Rule>
+          )}
+          {c.editing?.text_learnings?.position && (
+            <Rule emoji="⬆️"><b>Position:</b> {c.editing.text_learnings.position}</Rule>
+          )}
+          {c.editing?.text_learnings?.size && (
+            <Rule emoji="↔️"><b>Size:</b> {c.editing.text_learnings.size}</Rule>
+          )}
+          {c.editing?.text_learnings?.second_text && (
+            <Rule emoji="⏱"><b>Second text:</b> {c.editing.text_learnings.second_text}</Rule>
+          )}
+        </ContentModal>
+      )}
+
+      {/* Multiple Texts Instructions modal */}
+      {showMultiText && (
+        <ContentModal title={c.editing?.multiple_texts?.title || 'Multiple Texts Instructions'} onClose={() => setShowMultiText(false)}>
+          {c.editing?.multiple_texts?.body && (
+            <Rule emoji="⏱">{c.editing.multiple_texts.body}</Rule>
+          )}
+        </ContentModal>
+      )}
+
+      {/* Our Top 3 Angles modal */}
+      {showAngles && (
+        <ContentModal title="Our Top 3 Angles" onClose={() => setShowAngles(false)}>
+          {c.which_text && (
+            <>
+              {c.which_text.core_rule && (
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', background: '#FEF3C7', padding: '10px 12px', borderRadius: 8, marginBottom: 12 }}>
+                  CORE RULE: {c.which_text.core_rule}
+                </p>
+              )}
+
+              {c.which_text.type1 && (
+                <>
+                  {c.which_text.type1.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 12 }}>{c.which_text.type1.heading}</p>}
+                  {c.which_text.type1.intro && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>{c.which_text.type1.intro}</p>}
+                  {(c.which_text.type1.examples || []).map((ex, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>•</span>
+                      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{ex}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {c.which_text.type2 && (
+                <>
+                  {c.which_text.type2.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 16 }}>{c.which_text.type2.heading}</p>}
+                  {(c.which_text.type2.worked || []).map((t, i) => (
+                    <div key={`w${i}`} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                      <span>✅</span>
+                      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t}</span>
+                    </div>
+                  ))}
+                  {(c.which_text.type2.didnt || []).map((t, i) => (
+                    <div key={`d${i}`} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                      <span>❌</span>
+                      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t}</span>
+                    </div>
+                  ))}
+                  {c.which_text.type2.why && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>{c.which_text.type2.why}</p>}
+                </>
+              )}
+
+              {c.editing?.tutorial_url && (
+                <VideoEmbed url={c.editing.tutorial_url} />
+              )}
+
+              {c.which_text.how_to && (
+                <>
+                  {c.which_text.how_to.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 16 }}>{c.which_text.how_to.heading}</p>}
+                  {c.which_text.how_to.body && <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{c.which_text.how_to.body}</p>}
+                </>
+              )}
+
+              {c.which_text.bonus_note && (
+                <p style={{ fontSize: 13, color: 'var(--green-dark)', background: 'var(--green-light)', padding: '10px 12px', borderRadius: 8, marginTop: 12, lineHeight: 1.5 }}>
+                  {c.which_text.bonus_note}
+                </p>
+              )}
+            </>
+          )}
+        </ContentModal>
+      )}
     </div>
   );
 }
