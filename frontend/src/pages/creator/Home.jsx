@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Badge from '../../components/Badge';
 import AllHeadlinesModal from '../../components/AllHeadlinesModal';
 import styles from './Creator.module.css';
+import { HOW_TO_RECORD } from '../../data/howToRecord';
 
 // Simple full-screen modal used by the learning buttons on the home page.
 function ContentModal({ title, onClose, children }) {
@@ -89,6 +90,7 @@ export default function CreatorHome() {
   const [showText, setShowText] = useState(false);
   const [showMultiText, setShowMultiText] = useState(false);
   const [showAngles, setShowAngles] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
 
   useEffect(() => {
     api.getConcepts().then(setConcepts).finally(() => setLoading(false));
@@ -150,14 +152,14 @@ export default function CreatorHome() {
         Text Basic Learnings
       </button>
 
-      <button type="button" onClick={() => setShowMultiText(true)}
-        style={btnStyle('#FEF3C7', '#D97706', '#D97706')}>
-        Multiple Texts Instructions
+      <button type="button" onClick={() => setShowAngles(true)}
+        style={btnStyle('#FEE2E2', '#DC2626', '#DC2626')}>
+        Our Top 3 Angles
       </button>
 
-      <button type="button" onClick={() => setShowAngles(true)}
-        style={{ ...btnStyle('#FEE2E2', '#DC2626', '#DC2626'), marginBottom: 28 }}>
-        Our Top 3 Angles
+      <button type="button" onClick={() => setShowChecklist(true)}
+        style={{ ...btnStyle('#FFF7ED', '#EA580C', '#EA580C'), marginBottom: 28 }}>
+        Autorecord Checklist
       </button>
 
       {loading ? (
@@ -221,12 +223,6 @@ export default function CreatorHome() {
           {c.visuals_learnings?.filming && (
             <Rule emoji="🎥">{c.visuals_learnings.filming}</Rule>
           )}
-          {c.visuals_learnings?.record_video_url && (
-            <VideoEmbed
-              url={c.visuals_learnings.record_video_url}
-              label={c.visuals_learnings.record_title || 'How to record - Step By Step:'}
-            />
-          )}
         </ContentModal>
       )}
 
@@ -245,14 +241,14 @@ export default function CreatorHome() {
           {c.editing?.text_learnings?.second_text && (
             <Rule emoji="⏱"><b>Second text:</b> {c.editing.text_learnings.second_text}</Rule>
           )}
-        </ContentModal>
-      )}
-
-      {/* Multiple Texts Instructions modal */}
-      {showMultiText && (
-        <ContentModal title={c.editing?.multiple_texts?.title || 'Multiple Texts Instructions'} onClose={() => setShowMultiText(false)}>
           {c.editing?.multiple_texts?.body && (
-            <Rule emoji="⏱">{c.editing.multiple_texts.body}</Rule>
+            <>
+              <hr style={{ border: 'none', borderTop: '1px solid #e5e5e5', margin: '14px 0' }} />
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
+                {c.editing?.multiple_texts?.title || 'Multiple Texts Instructions'}
+              </p>
+              <Rule emoji="⏱">{c.editing.multiple_texts.body}</Rule>
+            </>
           )}
         </ContentModal>
       )}
@@ -318,6 +314,29 @@ export default function CreatorHome() {
               )}
             </>
           )}
+        </ContentModal>
+      )}
+
+      {/* Autorecord Checklist modal */}
+      {showChecklist && (
+        <ContentModal title="🎬 Autorecord Checklist" onClose={() => setShowChecklist(false)}>
+          {c.visuals_learnings?.record_video_url && (
+            <VideoEmbed
+              url={c.visuals_learnings.record_video_url}
+              label={c.visuals_learnings.record_title || 'How to record - Step By Step:'}
+            />
+          )}
+          <div style={{ marginTop: 16 }}>
+            {HOW_TO_RECORD.map((b, i) => {
+              if (b.kind === 'header') return <h4 key={i} style={{ fontSize: 15, fontWeight: 800, color: '#1F1B14', background: '#FBF3C8', borderRadius: 8, padding: '6px 10px', margin: '22px 0 12px' }}>{b.text}</h4>;
+              if (b.kind === 'todo') return <p key={i} style={{ fontSize: 14.5, color: '#1F1B14', lineHeight: 1.55, margin: '0 0 12px' }}>☐ {b.text}</p>;
+              if (b.kind === 'note') return <p key={i} style={{ fontSize: 14.5, fontWeight: 600, color: '#1F1B14', lineHeight: 1.55, margin: '0 0 10px' }}>{b.text}</p>;
+              if (b.kind === 'text') return <p key={i} style={{ fontSize: 15, fontWeight: 900, letterSpacing: '0.02em', color: '#1F1B14', textAlign: 'center', margin: '16px 0 8px' }}>{b.text}</p>;
+              if (b.kind === 'image') return <img key={i} style={{ display: 'block', width: '100%', maxHeight: 420, objectFit: 'contain', borderRadius: 10, background: '#f2efe9', margin: '0 0 8px' }} src={b.file} alt="" loading="lazy" />;
+              if (b.kind === 'video') return <video key={i} style={{ display: 'block', width: '100%', maxHeight: 420, objectFit: 'contain', borderRadius: 10, background: '#f2efe9', margin: '0 0 8px' }} src={b.file} controls playsInline muted loop preload="metadata" />;
+              return null;
+            })}
+          </div>
         </ContentModal>
       )}
     </div>
