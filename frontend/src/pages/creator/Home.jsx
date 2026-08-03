@@ -159,7 +159,7 @@ export default function CreatorHome() {
 
       <button type="button" onClick={() => setShowChecklist(true)}
         style={{ ...btnStyle('#FFF7ED', '#EA580C', '#EA580C'), marginBottom: 28 }}>
-        Autorecord Checklist
+        How to record checklist
       </button>
 
       {loading ? (
@@ -319,7 +319,7 @@ export default function CreatorHome() {
 
       {/* Autorecord Checklist modal */}
       {showChecklist && (
-        <ContentModal title="🎬 Autorecord Checklist" onClose={() => setShowChecklist(false)}>
+        <ContentModal title="🎬 How to record checklist" onClose={() => setShowChecklist(false)}>
           {c.visuals_learnings?.record_video_url && (
             <VideoEmbed
               url={c.visuals_learnings.record_video_url}
