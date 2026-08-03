@@ -45,7 +45,7 @@ function ContentModal({ title, onClose, children }) {
 function VideoEmbed({ url, label }) {
   if (!url) return null;
   const s = String(url);
-  const loom = s.match(/loom\.com\/(?:share|embed)\/([a-f0-9]+)/i);
+  const loom = s.match(/loom\.com\/(?:share|embed)\/([\da-f][\da-f-]+[\da-f])/i);
   const yt = s.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i);
   const embed = loom ? `https://www.loom.com/embed/${loom[1]}` : yt ? `https://www.youtube.com/embed/${yt[1]}` : null;
   if (!embed) {
@@ -115,7 +115,8 @@ export default function CreatorHome() {
 
   const c = content || {};
   const h = homeContent || {};
-  const angles = h.angles || {};
+  // Use home_screen_content angles if populated, otherwise fall back to guide content which_text
+  const angles = (h.angles && Object.keys(h.angles).length) ? h.angles : (c.which_text || {});
 
   // Button style generator
   const btnStyle = (bg, border, color) => ({
@@ -298,8 +299,8 @@ export default function CreatorHome() {
             </>
           )}
 
-          {angles.tutorial_url && (
-            <VideoEmbed url={angles.tutorial_url} />
+          {(angles.tutorial_url || c.editing?.tutorial_url) && (
+            <VideoEmbed url={angles.tutorial_url || c.editing?.tutorial_url} />
           )}
 
           {angles.how_to && (
