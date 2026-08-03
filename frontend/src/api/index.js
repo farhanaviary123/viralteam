@@ -222,6 +222,10 @@ export const api = {
   getGuideContent: () => req('GET', '/guide-content'),
   updateGuideContent: (body) => req('PATCH', '/guide-content', body),
 
+  // Home screen content (v27 — separate from Guide, powers Home screen buttons)
+  getHomeContent: () => req('GET', '/home-content'),
+  updateHomeContent: (body) => req('PATCH', '/home-content', body),
+
   // Stats
   getStats: () => req('GET', '/stats'),
 

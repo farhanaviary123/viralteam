@@ -12,6 +12,7 @@ import CreativeStrategy from './pages/strategist/CreativeStrategy';
 import Creators from './pages/strategist/Creators';
 import Performance from './pages/strategist/Performance';
 import GuideContentEditor from './pages/strategist/GuideContentEditor';
+import HomeScreenEditor from './pages/strategist/HomeScreenEditor';
 import Uploads from './pages/strategist/Uploads';
 
 function Guard({ role, children }) {
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/strategist/creators" element={<Guard role="strategist"><Creators /></Guard>} />
         <Route path="/strategist/performance" element={<Guard role="strategist"><Performance /></Guard>} />
         <Route path="/strategist/guide" element={<Guard role="strategist"><GuideContentEditor /></Guard>} />
+        <Route path="/strategist/home-content" element={<Guard role="strategist"><HomeScreenEditor /></Guard>} />
         <Route path="/strategist/uploads" element={<Guard role="strategist"><Uploads /></Guard>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

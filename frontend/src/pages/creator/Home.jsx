@@ -86,6 +86,7 @@ export default function CreatorHome() {
 
   // Guide content for the learning modals
   const [content, setContent] = useState(null);
+  const [homeContent, setHomeContent] = useState(null);
   const [showVisuals, setShowVisuals] = useState(false);
   const [showText, setShowText] = useState(false);
   const [showMultiText, setShowMultiText] = useState(false);
@@ -95,6 +96,7 @@ export default function CreatorHome() {
   useEffect(() => {
     api.getConcepts().then(setConcepts).finally(() => setLoading(false));
     api.getGuideContent().then(setContent).catch(() => setContent({}));
+    api.getHomeContent().then(setHomeContent).catch(() => setHomeContent({}));
   }, []);
 
   const inProgress = concepts.filter(c => c.status !== 'done' && c.status !== 'complete');
@@ -112,6 +114,8 @@ export default function CreatorHome() {
   }
 
   const c = content || {};
+  const h = homeContent || {};
+  const angles = h.angles || {};
 
   // Button style generator
   const btnStyle = (bg, border, color) => ({
@@ -255,64 +259,60 @@ export default function CreatorHome() {
 
       {/* Our Top 3 Angles modal */}
       {showAngles && (
-        <ContentModal title="Our Top 3 Angles" onClose={() => setShowAngles(false)}>
-          {c.which_text && (
+        <ContentModal title={angles.title || 'Our Top 3 Angles'} onClose={() => setShowAngles(false)}>
+          {angles.core_rule && (
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', background: '#FEF3C7', padding: '10px 12px', borderRadius: 8, marginBottom: 12 }}>
+              CORE RULE: {angles.core_rule}
+            </p>
+          )}
+
+          {angles.type1 && (
             <>
-              {c.which_text.core_rule && (
-                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', background: '#FEF3C7', padding: '10px 12px', borderRadius: 8, marginBottom: 12 }}>
-                  CORE RULE: {c.which_text.core_rule}
-                </p>
-              )}
-
-              {c.which_text.type1 && (
-                <>
-                  {c.which_text.type1.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 12 }}>{c.which_text.type1.heading}</p>}
-                  {c.which_text.type1.intro && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>{c.which_text.type1.intro}</p>}
-                  {(c.which_text.type1.examples || []).map((ex, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-                      <span style={{ color: 'var(--text-secondary)' }}>•</span>
-                      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{ex}</span>
-                    </div>
-                  ))}
-                </>
-              )}
-
-              {c.which_text.type2 && (
-                <>
-                  {c.which_text.type2.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 16 }}>{c.which_text.type2.heading}</p>}
-                  {(c.which_text.type2.worked || []).map((t, i) => (
-                    <div key={`w${i}`} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-                      <span>✅</span>
-                      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t}</span>
-                    </div>
-                  ))}
-                  {(c.which_text.type2.didnt || []).map((t, i) => (
-                    <div key={`d${i}`} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-                      <span>❌</span>
-                      <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t}</span>
-                    </div>
-                  ))}
-                  {c.which_text.type2.why && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>{c.which_text.type2.why}</p>}
-                </>
-              )}
-
-              {c.editing?.tutorial_url && (
-                <VideoEmbed url={c.editing.tutorial_url} />
-              )}
-
-              {c.which_text.how_to && (
-                <>
-                  {c.which_text.how_to.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 16 }}>{c.which_text.how_to.heading}</p>}
-                  {c.which_text.how_to.body && <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{c.which_text.how_to.body}</p>}
-                </>
-              )}
-
-              {c.which_text.bonus_note && (
-                <p style={{ fontSize: 13, color: 'var(--green-dark)', background: 'var(--green-light)', padding: '10px 12px', borderRadius: 8, marginTop: 12, lineHeight: 1.5 }}>
-                  {c.which_text.bonus_note}
-                </p>
-              )}
+              {angles.type1.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 12 }}>{angles.type1.heading}</p>}
+              {angles.type1.intro && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>{angles.type1.intro}</p>}
+              {(angles.type1.examples || []).map((ex, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>•</span>
+                  <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{ex}</span>
+                </div>
+              ))}
             </>
+          )}
+
+          {angles.type2 && (
+            <>
+              {angles.type2.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 16 }}>{angles.type2.heading}</p>}
+              {(angles.type2.worked || []).map((t, i) => (
+                <div key={`w${i}`} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                  <span>✅</span>
+                  <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t}</span>
+                </div>
+              ))}
+              {(angles.type2.didnt || []).map((t, i) => (
+                <div key={`d${i}`} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                  <span>❌</span>
+                  <span style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t}</span>
+                </div>
+              ))}
+              {angles.type2.why && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>{angles.type2.why}</p>}
+            </>
+          )}
+
+          {angles.tutorial_url && (
+            <VideoEmbed url={angles.tutorial_url} />
+          )}
+
+          {angles.how_to && (
+            <>
+              {angles.how_to.heading && <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, marginTop: 16 }}>{angles.how_to.heading}</p>}
+              {angles.how_to.body && <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{angles.how_to.body}</p>}
+            </>
+          )}
+
+          {angles.bonus_note && (
+            <p style={{ fontSize: 13, color: 'var(--green-dark)', background: 'var(--green-light)', padding: '10px 12px', borderRadius: 8, marginTop: 12, lineHeight: 1.5 }}>
+              {angles.bonus_note}
+            </p>
           )}
         </ContentModal>
       )}
